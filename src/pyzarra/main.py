@@ -26,7 +26,7 @@ def main() -> None:
     api = Api()
 
     webview.create_window(
-        title="Pizarra — Bocetos Web",
+        title="Pyzarra",
         url=str(INDEX),
         js_api=api,          # <-- puente JavaScript -> Python
         width=1200,
