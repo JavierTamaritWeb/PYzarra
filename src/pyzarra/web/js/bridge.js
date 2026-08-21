@@ -22,6 +22,21 @@
     return window.pywebview && window.pywebview.api;
   }
 
+  /* Aviso visible reutilizando la región de toasts de la app (#toast-region).
+     Sin esto, un fallo al guardar o abrir solo dejaba un console.error que
+     nadie ve en una ventana nativa: la exportación fallaba EN SILENCIO. */
+  function avisar(texto) {
+    try {
+      var region = document.getElementById("toast-region");
+      if (!region) return;
+      var toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = texto;
+      region.appendChild(toast);
+      setTimeout(function () { toast.remove(); }, 4000);
+    } catch (e) { /* el aviso nunca debe romper nada */ }
+  }
+
   /* ---------- 1. Exportar: interceptar <a download> ---------- */
 
   // exporter.js revoca el objectURL justo despues del click, asi que
@@ -75,6 +90,7 @@
       return api().save_file(name, b64);
     }).catch(function (e) {
       console.error("[bridge] fallo al guardar:", e);
+      avisar("⚠ No se pudo guardar el archivo");
     });
   };
 
@@ -104,6 +120,7 @@
       input.dispatchEvent(ev);
     }).catch(function (e) {
       console.error("[bridge] fallo al abrir:", e);
+      avisar("⚠ No se pudo abrir el archivo");
     });
   };
 
@@ -141,10 +158,12 @@
       // Si localStorage se borro (fragil bajo file://) pero Python tiene
       // datos, restauramos y recargamos UNA vez.
       var restaurado = false;
+      var claveTestigo = null; // una clave restaurada, para verificar despues
       Object.keys(estado).forEach(function (k) {
         if (esClaveApp(k) && window.localStorage.getItem(k) === null && !(k in pendingWrites)) {
           origSetItem.call(window.localStorage, k, estado[k]);
           restaurado = true;
+          claveTestigo = k;
         }
       });
       // Volcar escrituras que ocurrieron antes de estar listos
@@ -152,8 +171,22 @@
         api().save_state(k, pendingWrites[k]);
       });
       pendingWrites = {};
-      if (restaurado && !window.__bridgeReloaded) {
-        window.__bridgeReloaded = true;
+      // Guarda anti-bucle en DOS capas, porque window.__bridgeReloaded muere
+      // con la propia recarga que protege:
+      //   1. La escritura tiene que haberse QUEDADO en localStorage: si el
+      //      almacen descarta escrituras (privado/roto), recargar volveria a
+      //      encontrarlo vacio y a recargar, en bucle, para siempre.
+      //   2. Una marca en sessionStorage, que si sobrevive a la recarga.
+      var seAplico = false;
+      try {
+        seAplico = restaurado &&
+          window.localStorage.getItem(claveTestigo) === estado[claveTestigo];
+      } catch (e) { /* localStorage inaccesible: no recargar */ }
+      var yaRecargado = false;
+      try { yaRecargado = !!window.sessionStorage.getItem("bridge.reloaded"); }
+      catch (e) { /* sessionStorage inaccesible: cuenta como recargado */ yaRecargado = true; }
+      if (seAplico && !yaRecargado) {
+        try { window.sessionStorage.setItem("bridge.reloaded", "1"); } catch (e) { }
         window.location.reload();
       }
     }).catch(function (e) {
