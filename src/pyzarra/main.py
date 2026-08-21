@@ -5,15 +5,20 @@ Abre una ventana nativa que carga la web (HTML + CSS + JS vanilla).
 La apariencia visual es IDENTICA a la del navegador.
 """
 
+import sys
 from pathlib import Path
 
 import webview
 
 from pyzarra.api import Api
 
-# Carpeta donde vive la web. Funciona tanto en desarrollo
-# como dentro del .app empaquetado.
-WEB_DIR = Path(__file__).parent / "web"
+# Carpeta donde vive la web. Empaquetado con PyInstaller, los datos
+# viven en sys._MEIPASS (ver datas= en Pyzarra.spec); en desarrollo,
+# junto a este archivo.
+if getattr(sys, "frozen", False):
+    WEB_DIR = Path(sys._MEIPASS) / "pyzarra" / "web"
+else:
+    WEB_DIR = Path(__file__).parent / "web"
 INDEX = WEB_DIR / "index.html"
 
 
