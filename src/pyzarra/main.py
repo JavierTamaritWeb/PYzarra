@@ -23,10 +23,25 @@ else:
 INDEX = WEB_DIR / "index.html"
 
 
+def _instalar_menu_mac(window) -> None:
+    """
+    Workaround para macOS: el backend Cocoa de pywebview (5.3.2) borra el
+    menu pasado a webview.start() al mostrar la primera ventana
+    (first_show -> _clear_main_menu). Lo reinstalamos en el hilo principal
+    una vez la ventana esta visible.
+    """
+    from PyObjCTools import AppHelper
+
+    from pyzarra.menu import instalar_menu_cocoa
+
+    window.events.shown.wait()
+    AppHelper.callAfter(instalar_menu_cocoa)
+
+
 def main() -> None:
     api = Api()
 
-    webview.create_window(
+    window = webview.create_window(
         title="Pyzarra",
         url=str(INDEX),
         js_api=api,          # <-- puente JavaScript -> Python
@@ -39,7 +54,11 @@ def main() -> None:
 
     # debug=True abre las DevTools (inspeccionar elemento).
     # Ponlo en True mientras desarrollas.
-    webview.start(menu=build_menu(), debug=False)
+    if sys.platform == "darwin":
+        # En macOS, menu= se pierde (ver _instalar_menu_mac).
+        webview.start(func=_instalar_menu_mac, args=(window,), debug=False)
+    else:
+        webview.start(menu=build_menu(), debug=False)
 
 
 if __name__ == "__main__":
