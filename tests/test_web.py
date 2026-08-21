@@ -204,3 +204,29 @@ class TestVersionDeUv:
         assert (may_f, min_f) >= (may_r, min_r), (
             f".python-version ({version}) es menor que requires-python ({requiere})"
         )
+
+
+class TestMenuNativo:
+    """La barra de menus dispara botones de la web: deben existir."""
+
+    def test_cada_entrada_apunta_a_un_boton_real(self, web_dir):
+        from pyzarra.menu import MENU_LAYOUT
+
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        faltan = [
+            boton
+            for _, entradas in MENU_LAYOUT
+            for entrada in entradas
+            if entrada is not None
+            for _, boton in [entrada]
+            if f'id="{boton}"' not in html
+        ]
+        assert not faltan, f"El menu apunta a botones inexistentes: {faltan}"
+
+    def test_el_menu_se_construye(self):
+        from pyzarra.menu import build_menu
+
+        menus = build_menu()
+        assert len(menus) >= 3
+        titulos = [m.title for m in menus]
+        assert "Archivo" in titulos and "Edición" in titulos

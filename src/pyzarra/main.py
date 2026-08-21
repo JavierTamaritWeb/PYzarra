@@ -11,6 +11,7 @@ from pathlib import Path
 import webview
 
 from pyzarra.api import Api
+from pyzarra.menu import build_menu
 
 # Carpeta donde vive la web. Empaquetado con PyInstaller, los datos
 # viven en sys._MEIPASS (ver datas= en Pyzarra.spec); en desarrollo,
@@ -38,7 +39,7 @@ def main() -> None:
 
     # debug=True abre las DevTools (inspeccionar elemento).
     # Ponlo en True mientras desarrollas.
-    webview.start(debug=False)
+    webview.start(menu=build_menu(), debug=False)
 
 
 if __name__ == "__main__":
