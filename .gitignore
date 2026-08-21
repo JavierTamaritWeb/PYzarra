@@ -1,0 +1,22 @@
+# Entorno virtual
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Editores
+.vscode/
+.idea/
+.DS_Store
+
+# NO ignorar uv.lock ni .python-version -> deben ir a git
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
