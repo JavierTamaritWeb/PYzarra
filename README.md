@@ -1,156 +1,96 @@
 # Pyzarra
 
-App de escritorio que carga tu web (HTML + CSS + JS vanilla) en una ventana nativa.
-**La apariencia visual es identica a la del navegador.**
+**Pizarra de bocetos y wireframes como app de escritorio.**
+Una ventana nativa (pywebview) carga la web de dibujo —HTML + CSS + JS vanilla, sin frameworks— con apariencia idéntica a la del navegador, y le añade lo que un navegador no da: diálogos nativos de Guardar/Abrir, barra de menús del sistema y persistencia en disco.
+
+Versión: **4.0.0**.
+
+## Qué hace la app
+
+- Dibujo a mano alzada con estética de croquis: lápiz (con presión), aerógrafo, tinta, formas, flechas, texto y emojis
+- Componentes de wireframe (botón, input, navbar, tarjeta, imagen, marcos de pantalla) y catálogos de edificios y jardín
+- Selección, alineado, distribución, grupos, orden Z, bloqueo, deshacer/rehacer (50 pasos)
+- Exportación a **PNG, JPG, SVG, HTML y JSON** (el JSON se reabre como proyecto), copia al portapapeles
+- Plantillas, biblioteca de piezas propias, autoguardado continuo
+- Barra lateral clásica o **barras de herramientas flotantes** arrastrables (botón «Barras»)
+- Ayuda completa con buscador: botón **Ayuda** o tecla `?`
+
+Todo se guarda en local (`~/Library/Application Support/Pyzarra/`). La app no pide nada por red: fuentes autoalojadas, funciona sin conexión.
 
 ---
 
-## 1. Instalar `uv` (una sola vez)
+## Instalar y ejecutar
 
-**macOS / Linux:**
+Requiere [uv](https://docs.astral.sh/uv/) **0.12.0 o superior**:
+
 ```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
+curl -LsSf https://astral.sh/uv/install.sh | sh   # macOS / Linux
 ```
-
-**Windows (PowerShell):**
-```powershell
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
-
-Comprobar:
-```bash
-uv --version
-```
-
-Este proyecto exige **uv 0.12.0 o superior**.
-Si tienes uno mas viejo, uv te avisa y no continua. Actualiza con:
-```bash
-uv self update
-```
-
----
-
-## 2. Instalar el proyecto
 
 Desde la carpeta del proyecto:
 
 ```bash
-uv sync
+uv sync          # crea .venv e instala todo (no hace falta activarlo)
+uv run pyzarra   # abre la app
 ```
 
-Esto hace 3 cosas solo:
-1. Crea el entorno virtual en `.venv/`
-2. Instala las librerias del `pyproject.toml`
-3. Crea `uv.lock` con las versiones exactas
-
-**No hace falta activar el entorno.** `uv` lo hace por ti.
-
----
-
-## 3. Ejecutar
+## Tests
 
 ```bash
-uv run pyzarra
+uv run pytest                                          # todos
+uv run pytest tests/test_api.py -v                     # un archivo
+uv run pytest --cov=pyzarra --cov-report=term-missing  # con cobertura
+uv run ruff check src tests                            # lint
 ```
 
-O tambien:
-```bash
-uv run python -m pyzarra.main
-```
+Los tests protegen lo que rompe la app en silencio: que existan y estén enlazados todos los archivos de la web, que las rutas sean **relativas** (una absoluta abre el `.app` en blanco), el orden de carga de los scripts, que el puente espere a `pywebviewready`, que cada entrada del menú nativo apunte a un botón real del HTML, la persistencia (escritura atómica, tolerancia a archivos corruptos) y que todas las versiones estén fijadas.
 
----
-
-## 4. Pasar los tests
+## Empaquetar (macOS)
 
 ```bash
-uv run pytest
+./build-mac.sh    # → dist/Pyzarra.app (compila con PyInstaller y firma ad-hoc)
 ```
 
-Los tests comprueban:
-- La logica de `api.py`
-- Que los metodos privados NO se exponen a JavaScript
-- Que existen `index.html`, CSS y JS
-- Que las rutas son relativas (si no, el .app se abre en blanco)
-- Que el JS espera al evento `pywebviewready`
-- Que todas las librerias tienen version fija
-
-Con informe de cobertura:
-```bash
-uv run pytest --cov=pyzarra --cov-report=term-missing
-```
+Detalles, icono y firma: **[EMPAQUETAR-MAC.md](EMPAQUETAR-MAC.md)**.
+Ojo: `dist/Pyzarra.app` **no se actualiza solo** — tras cambiar código hay que volver a ejecutar el script. En desarrollo, `uv run pyzarra` usa siempre el código al día.
 
 ---
 
-## Comandos utiles
-
-| Que quiero | Comando |
-|---|---|
-| Anadir una libreria | `uv add nombre-libreria` |
-| Quitar una libreria | `uv remove nombre-libreria` |
-| Anadir libreria de desarrollo | `uv add --dev nombre-libreria` |
-| Ver librerias instaladas | `uv pip list` |
-| Actualizar el lock | `uv lock --upgrade` |
-| Instalar exacto que el lock | `uv sync --frozen` |
-| Pasar los tests | `uv run pytest` |
-| Un solo test | `uv run pytest tests/test_api.py -v` |
-
----
-
-## Estructura
+## Cómo está montada
 
 ```
-pyzarra/
-├── pyproject.toml          <- ficha del proyecto + librerias + version de uv
-├── uv.lock                 <- versiones exactas (lo crea uv)
-├── .python-version         <- version de Python fijada (3.11)
-├── .gitignore
-├── README.md
-├── Pyzarra.spec              <- config del .app de Mac
-├── build-mac.sh
-├── tests/
-│   ├── conftest.py         <- fixtures compartidas
-│   ├── test_api.py         <- logica Python
-│   └── test_web.py         <- archivos web + rutas
-└── src/
-    └── pyzarra/
-        ├── __init__.py
-        ├── main.py         <- abre la ventana
-        ├── api.py          <- LOGICA en Python
-        └── web/            <- TU WEB, tal cual
-            ├── index.html
-            ├── css/style.css
-            ├── js/app.js
-            └── assets/
+src/pyzarra/
+├── main.py     <- abre la ventana; en macOS reinstala el menú (workaround Cocoa)
+├── api.py      <- puente JS -> Python: diálogos nativos y persistencia en disco
+├── menu.py     <- barra de menús del sistema; cada entrada pulsa un botón de la web
+└── web/        <- la web de dibujo (build minificado) + bridge.js
+    ├── index.html
+    ├── css/styles.css
+    ├── js/bridge.js    <- ÚNICO JS añadido: conecta la web con pywebview
+    └── js/*.js         <- los 19 scripts de la app de dibujo, sin tocar
 ```
 
----
+Tres decisiones sostienen la migración:
 
-## Como conectar JavaScript con Python
+1. **Cero ediciones al JS original.** `bridge.js` se carga primero e intercepta lo justo: `<a download>` → diálogo nativo de Guardar, `<input type=file>` → diálogo de Abrir, y `localStorage` (claves `sketchwire.*`) → espejo en disco vía `api.py`. En un navegador normal no hace nada.
+2. **La lógica de la interfaz vive en JS.** El menú nativo (`menu.py`) solo dispara los botones de la web por su id, así nunca se desincroniza de lo que hace la app.
+3. **`web/` es un build.** El código fuente de la web (JS sin minificar, SCSS, sus propias suites de tests) vive en un proyecto aparte; aquí llega compilado. Los arreglos de la web se hacen allí y se vuelve a copiar el build (flujo documentado en `CLAUDE.md`).
 
-**En Python** (`api.py`) — creas un metodo:
+### Conectar JavaScript con Python
+
 ```python
+# api.py — un método público nuevo queda expuesto a JS automáticamente
 class Api:
     def saludar(self, nombre: str) -> str:
         return f"Hola, {nombre}"
 ```
 
-**En JavaScript** (`app.js`) — lo llamas:
 ```javascript
+// en la web — esperar SIEMPRE a pywebviewready antes de usar la API
 const texto = await window.pywebview.api.saludar("Javi");
 ```
 
-**Regla clave:** espera siempre al evento `pywebviewready` antes de usar la API.
-
----
-
-## Migrar tu proyecto actual
-
-1. Copia tu HTML, CSS y JS dentro de `src/pyzarra/web/`
-2. Renombra tu HTML principal a `index.html`
-3. Usa **rutas relativas** (`css/style.css`, NO `/css/style.css`)
-4. Mueve la logica que necesite disco, red o sistema a `api.py`
-
-Si usas Gulp/SCSS: compila a `src/pyzarra/web/css/` y listo.
+Los métodos que empiezan por `_` no se exponen; argumentos y retornos deben ser JSON-serializables.
 
 ---
 
@@ -158,33 +98,21 @@ Si usas Gulp/SCSS: compila a `src/pyzarra/web/css/` y listo.
 
 | Sistema | Motor web | Instalar algo |
 |---|---|---|
+| macOS | WebKit (WKWebView) | Nada, ya viene |
 | Windows | WebView2 (Edge) | Normalmente ya viene en Win 10/11 |
-| macOS | WebKit | Nada, ya viene |
 | Linux | GTK + WebKit2 | `sudo apt install python3-gi gir1.2-webkit2-4.1` |
 
----
+## Versiones controladas
 
-## Empaquetar en .exe / .app
+| Qué | Dónde |
+|---|---|
+| Librerías (`pywebview==5.3.2`, …) | `pyproject.toml`, siempre con `==` |
+| Versiones exactas de todo | `uv.lock` |
+| Python (3.11) | `.python-version` |
+| Herramienta uv (>=0.12.0) | `pyproject.toml` → `[tool.uv]` |
 
-```bash
-uv add --dev pyinstaller
-uv run pyinstaller --noconfirm --windowed --name "Pyzarra" \
-  --add-data "src/pyzarra/web:pyzarra/web" \
-  src/pyzarra/main.py
-```
+Los cuatro archivos van a git, incluido `uv.lock`.
 
-En Windows cambia `:` por `;` en `--add-data`.
+## Licencia
 
-
----
-
-## Que versiones estan controladas
-
-| Que | Donde | Valor |
-|---|---|---|
-| Librerias | `pyproject.toml` | `pywebview==5.3.2` |
-| Versiones exactas de TODO | `uv.lock` | lo genera uv |
-| Version de Python | `.python-version` | `3.11` |
-| Version de la herramienta uv | `pyproject.toml` -> `[tool.uv]` | `>=0.12.0` |
-
-Los 4 archivos deben subirse a git. Incluido `uv.lock`.
+[MIT](LICENSE) — © 2026 Javier Tamarit. (Traducción orientativa: [LICENSE.es.txt](LICENSE.es.txt).)
