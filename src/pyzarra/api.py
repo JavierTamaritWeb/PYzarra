@@ -66,21 +66,35 @@ class Api:
 
     # ---------- Persistencia en disco (sustituye a localStorage) ----------
     def save_state(self, key: str, value: str) -> bool:
-        """Guarda un valor (string JSON) en un archivo por clave."""
+        """Guarda un valor (string JSON) en un archivo por clave.
+
+        Escritura atomica (archivo temporal + rename): un cierre a mitad de
+        escritura no puede dejar el autoguardado truncado — quedaria el
+        contenido anterior intacto.
+        """
         if not _KEY_RE.match(key):
             return False
         self._dir.mkdir(parents=True, exist_ok=True)
-        self._state_path(key).write_text(value, encoding="utf-8")
+        destino = self._state_path(key)
+        temporal = destino.parent / f"{destino.name}.tmp"
+        temporal.write_text(value, encoding="utf-8")
+        temporal.replace(destino)
         return True
 
     def load_state(self) -> dict:
-        """Devuelve {clave: valor} con todo el estado guardado."""
+        """Devuelve {clave: valor} con todo el estado guardado.
+
+        Un archivo ilegible o corrupto se salta en vez de tumbar la carga
+        entera: perder una clave es recuperable, perderlas todas no.
+        """
         if not self._dir.is_dir():
             return {}
         estado = {}
         for archivo in self._dir.glob("*.json"):
-            clave = archivo.stem
-            estado[clave] = archivo.read_text(encoding="utf-8")
+            try:
+                estado[archivo.stem] = archivo.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                continue
         return estado
 
     def delete_state(self, key: str) -> bool:

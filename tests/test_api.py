@@ -53,6 +53,22 @@ class TestPersistencia:
         api.save_state("sketchwire.prefs", '{"texto":"José Ñoño 🌱"}')
         assert "🌱" in api.load_state()["sketchwire.prefs"]
 
+    def test_un_archivo_corrupto_no_tumba_la_carga(self, api):
+        """Un .json ilegible se salta: perder una clave es recuperable,
+        perderlas todas (load_state lanzando) no."""
+        api.save_state("sketchwire.prefs", "{}")
+        (api._dir / "sketchwire.roto.json").write_bytes(b"\xff\xfe\x00basura")
+        estado = api.load_state()
+        assert "sketchwire.prefs" in estado
+        assert "sketchwire.roto" not in estado
+
+    def test_la_escritura_atomica_no_deja_temporales(self, api):
+        """El .tmp del rename atomico no debe quedar en el directorio ni
+        colarse como clave en load_state."""
+        api.save_state("sketchwire.prefs", "{}")
+        assert not list(api._dir.glob("*.tmp"))
+        assert set(api.load_state()) == {"sketchwire.prefs"}
+
 
 class _VentanaFalsa:
     """Simula webview.windows[0] sin abrir ventana."""

@@ -12,7 +12,11 @@
   <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="img/icon-192.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png" />
-  <link rel="manifest" href="site.webmanifest" />
+  <!-- Sin <link rel="manifest">: dentro de la app la web se abre con file://
+       y WKWebView rechaza la peticion del manifest por CORS ("Origin null"),
+       un error de consola en cada arranque. Un manifest PWA no pinta nada en
+       una ventana nativa; el archivo sigue en el repo por si la web vuelve a
+       servirse por http. -->
   <meta name="theme-color" content="#0f1019" />
   <!-- Sin Google Fonts: las cinco manuscritas viajan autoalojadas en fonts/
        (@font-face en src/scss/base/_font-faces.scss). La app no pide nada por
