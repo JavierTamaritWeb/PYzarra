@@ -32,8 +32,8 @@ def main() -> None:
     )
 
     # debug=True abre las DevTools (inspeccionar elemento).
-    # Ponlo en False cuando publiques la app.
-    webview.start(debug=True)
+    # Ponlo en True mientras desarrollas.
+    webview.start(debug=False)
 
 
 if __name__ == "__main__":
