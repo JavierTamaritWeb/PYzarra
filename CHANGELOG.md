@@ -7,6 +7,15 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.7.0] — 2026-09-01
+
+Web al día con pizarra **3.21.0**.
+
+### Añadido
+
+- Quinta forma de punta de flecha: **Media** — un ala sola, el rasgo de un
+  «1» escrito a mano. Para la flecha recta, la curva y la flecha semicírculo.
+
 ## [4.6.0] — 2026-09-01
 
 Web al día con pizarra **3.20.0**.

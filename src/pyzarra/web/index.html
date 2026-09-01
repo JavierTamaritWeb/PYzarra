@@ -33,7 +33,7 @@
       <div class="topbar__brand">
         <img class="topbar__logo-icon" src="img/logo-96.png" alt="" aria-hidden="true" width="32" height="32" />
         <h1 class="topbar__logo-text">Py<span class="topbar__logo-accent">zarra</span></h1>
-        <span class="topbar__badge">v4.6.0</span>
+        <span class="topbar__badge">v4.7.0</span>
         <!-- Aviso de autoguardado: visible SOLO mientras localStorage rechaza
              el guardado (cuota llena). Sin él, el fallo era un catch mudo y el
              trabajo posterior se perdía en silencio al recargar. -->
@@ -871,7 +871,7 @@
       <section class="modal__help-group">
         <h4 class="modal__help-title">Flechas y curvas</h4>
         <ul class="modal__help-list">
-          <li><strong>Forma de la punta</strong>, en los ajustes del trazo: <strong>clásica</strong> (las dos rayas), <strong>maciza</strong>, <strong>barra</strong> —el remate de cota de un plano— o <strong>punto</strong>. Vale para las dos puntas cuando la flecha es de doble punta</li>
+          <li><strong>Forma de la punta</strong>, en los ajustes del trazo: <strong>clásica</strong> (las dos rayas), <strong>maciza</strong>, <strong>barra</strong> —el remate de cota de un plano—, <strong>punto</strong> o <strong>media</strong> —un ala sola, el rasgo de un 1 escrito a mano—. Vale para las dos puntas cuando la flecha es de doble punta</li>
           <li>En <strong>Flecha curva</strong>, un click sin arrastrar inicia una curva encadenada</li>
           <li>Cada click añade un tramo; <kbd>Ctrl</kbd>/<kbd>Cmd</kbd>+click añade el último y termina con una punta de flecha</li>
           <li><kbd>Retroceso</kbd> elimina el último tramo en construcción · <kbd>Esc</kbd> cancela la cadena · <kbd>Enter</kbd> la termina</li>
@@ -889,7 +889,7 @@
         <h4 class="modal__help-title">Semicírculos</h4>
         <ul class="modal__help-list">
           <li>Herramienta <strong>◠</strong> (<kbd>G</kbd>): semicírculo de 180° · el arrastre fija el diámetro</li>
-          <li>Herramienta <strong>⤾ Flecha semicírculo</strong>: el mismo arco pero con <strong>punta</strong> — nace donde acaba el arrastre, <kbd>D</kbd> la pasa al otro extremo, <kbd>Mayús</kbd> al trazar comba hacia el otro lado, «Doble punta» pone las dos y el selector <strong>«Punta»</strong> elige la forma (Clásica, Maciza, Barra o Punto)</li>
+          <li>Herramienta <strong>⤾ Flecha semicírculo</strong>: el mismo arco pero con <strong>punta</strong> — nace donde acaba el arrastre, <kbd>D</kbd> la pasa al otro extremo, <kbd>Mayús</kbd> al trazar comba hacia el otro lado, «Doble punta» pone las dos y el selector <strong>«Punta»</strong> elige la forma (Clásica, Maciza, Barra, Punto o Media)</li>
           <li><kbd>+</kbd>/<kbd>−</kbd> o su handle turquesa: cambiar el radio</li>
           <li><kbd>Q</kbd>: convertir flecha curva ↔ semicírculo</li>
         </ul>
@@ -1104,6 +1104,7 @@
                 <option value="triangle">Maciza</option>
                 <option value="bar">Barra</option>
                 <option value="dot">Punto</option>
+                <option value="half">Media</option>
               </select>
             </label>
           </fieldset>
