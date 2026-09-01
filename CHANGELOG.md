@@ -7,6 +7,15 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.8.1] — 2026-09-01
+
+Web al día con pizarra `2abcee1` (v3.22.1).
+
+### Corregido
+
+- **Barras flotantes**: Edificios y Jardín en paletas separadas — juntas, con
+  las herramientas nuevas, la barra era más alta que la ventana.
+
 ## [4.8.0] — 2026-09-01
 
 Web al día con pizarra `652e0f1` (v3.22.0).
