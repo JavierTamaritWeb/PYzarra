@@ -14,7 +14,8 @@ MENU_LAYOUT = [
     (
         "Archivo",
         [
-            ("Abrir proyecto…", "btn-import"),
+            ("Nueva pizarra", "btn-tab-new"),
+        ("Abrir proyecto…", "btn-import"),
             ("Exportar…", "btn-export"),
             None,
             ("Importar biblioteca…", "btn-library-import"),
