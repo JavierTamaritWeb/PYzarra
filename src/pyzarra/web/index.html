@@ -33,7 +33,7 @@
       <div class="topbar__brand">
         <img class="topbar__logo-icon" src="img/logo-96.png" alt="" aria-hidden="true" width="32" height="32" />
         <h1 class="topbar__logo-text">Py<span class="topbar__logo-accent">zarra</span></h1>
-        <span class="topbar__badge">v4.5.0</span>
+        <span class="topbar__badge">v4.6.0</span>
         <!-- Aviso de autoguardado: visible SOLO mientras localStorage rechaza
              el guardado (cuota llena). Sin él, el fallo era un catch mudo y el
              trabajo posterior se perdía en silencio al recargar. -->
@@ -693,7 +693,7 @@
         <h4 class="modal__help-title">✏️ Lápiz y trazo</h4>
         <ul class="modal__help-list">
           <li><strong>Temblor</strong>: cuánto tiembla el trazo dibujado a mano — <strong>de arquitecto</strong> (casi a regla), <strong>de artista</strong> (el de siempre) o <strong>de caricatura</strong>. Está en los ajustes del trazo y en los de la forma, y es el mismo mando en los dos. Cambia el lienzo y las imágenes PNG/JPG; el SVG y el HTML se exportan con la geometría limpia, como siempre</li>
-          <li>Al elegir <strong>Lápiz</strong> (<kbd>P</kbd>), <strong>Línea</strong> (<kbd>L</kbd>), <strong>Flecha</strong> (<kbd>A</kbd>), <strong>Flecha curva</strong> (<kbd>U</kbd>) o <strong>Semicírculo</strong> (<kbd>G</kbd>) se abren sus <strong>ajustes</strong>, con muestra en vivo: grosor, color, discontinuo y doble punta. Volver a pulsar la herramienta los reabre</li>
+          <li>Al elegir <strong>Lápiz</strong> (<kbd>P</kbd>), <strong>Línea</strong> (<kbd>L</kbd>), <strong>Flecha</strong> (<kbd>A</kbd>), <strong>Flecha curva</strong> (<kbd>U</kbd>), <strong>Semicírculo</strong> (<kbd>G</kbd>) o <strong>Flecha semicírculo</strong> (⤾) se abren sus <strong>ajustes</strong>, con muestra en vivo: grosor, color, discontinuo y doble punta. Volver a pulsar la herramienta los reabre</li>
           <li><strong>«Trazo con presión»</strong> (solo el lápiz) hace que el grosor siga la <strong>velocidad del gesto</strong>: rápido sale fino, despacio grueso, y las puntas quedan afiladas, como un lápiz de verdad. Desmarcado, el lápiz dibuja con el grosor uniforme de siempre</li>
           <li><strong>«Curvatura»</strong> (solo la flecha curva) decide con cuánta comba nacen: del <strong>0 %</strong> —una recta con punta— al 100 %, en porcentaje de la distancia entre los dos extremos. Antes era siempre la misma y todas las curvas salían iguales. La muestra del modal se curva con el mando</li>
           <li>Con algo seleccionado, esos mandos <strong>editan la selección</strong>; sin nada seleccionado, configuran lo próximo que dibujes</li>
@@ -889,6 +889,7 @@
         <h4 class="modal__help-title">Semicírculos</h4>
         <ul class="modal__help-list">
           <li>Herramienta <strong>◠</strong> (<kbd>G</kbd>): semicírculo de 180° · el arrastre fija el diámetro</li>
+          <li>Herramienta <strong>⤾ Flecha semicírculo</strong>: el mismo arco pero con <strong>punta</strong> — nace donde acaba el arrastre, <kbd>D</kbd> la pasa al otro extremo, <kbd>Mayús</kbd> al trazar comba hacia el otro lado, «Doble punta» pone las dos y el selector <strong>«Punta»</strong> elige la forma (Clásica, Maciza, Barra o Punto)</li>
           <li><kbd>+</kbd>/<kbd>−</kbd> o su handle turquesa: cambiar el radio</li>
           <li><kbd>Q</kbd>: convertir flecha curva ↔ semicírculo</li>
         </ul>
