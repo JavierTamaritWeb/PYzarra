@@ -7,6 +7,16 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.8.2] — 2026-09-01
+
+Web al día con pizarra `d84b652` (v3.22.2).
+
+### Corregido
+
+- **Punta «Media» en curvas**: en la flecha curva y en la flecha semicírculo
+  el ala salía del lado cóncavo; ahora cae del lado de la comba, continuando
+  el giro del trazo.
+
 ## [4.8.1] — 2026-09-01
 
 Web al día con pizarra `2abcee1` (v3.22.1).

@@ -9,7 +9,7 @@
 Una ventana nativa carga una web de dibujo hecha en HTML + CSS + JavaScript vanilla —sin frameworks— y le añade lo que un navegador no da:
 diálogos nativos de Guardar/Abrir, barra de menús del sistema y persistencia en disco.
 
-[![Versión](https://img.shields.io/badge/versión-4.8.1-2ec4b6?style=flat-square)](CHANGELOG.md)
+[![Versión](https://img.shields.io/badge/versión-4.8.2-2ec4b6?style=flat-square)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.11-3776ab?style=flat-square&logo=python&logoColor=white)](.python-version)
 [![pywebview](https://img.shields.io/badge/pywebview-5.3.2-1f6feb?style=flat-square)](pyproject.toml)
 [![Tests](https://img.shields.io/badge/tests-67%20passed-3fb950?style=flat-square)](tests/)

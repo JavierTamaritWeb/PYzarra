@@ -1,6 +1,6 @@
 [project]
 name = "pyzarra"
-version = "4.8.1"
+version = "4.8.2"
 description = "Pyzarra — app de escritorio con pywebview (HTML + CSS + JS vanilla)"
 requires-python = ">=3.11"
 
