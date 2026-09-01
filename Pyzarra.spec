@@ -13,7 +13,7 @@ from pathlib import Path
 
 APP_NAME = "Pyzarra"
 BUNDLE_ID = "es.javiertamarit.pyzarra"
-VERSION = "4.4.1"
+VERSION = "4.5.0"
 
 ROOT = Path(SPECPATH)
 WEB_DIR = ROOT / "src" / "pyzarra" / "web"
