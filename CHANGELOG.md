@@ -7,6 +7,19 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.8.0] — 2026-09-01
+
+Web al día con pizarra `652e0f1` (v3.22.0).
+
+### Añadido
+
+- **13 herramientas nuevas** de la pizarra: Formulario, Tabla, Gráfico, Diálogo,
+  Pestañas y Menú lateral en la sección UI; Escalera, Cota, Símbolos, Pilar,
+  Mobiliario, Porche y Siluetas en Edificios; y el complemento del Tejado
+  (chimenea, buhardilla, lucernario). Ver el CHANGELOG de pizarra para el detalle.
+- `web/index.html` portado a mano: 10 diálogos de catálogo/ajustes nuevos, el
+  select de complemento del Tejado y las secciones de Ayuda ampliadas.
+
 ## [4.7.0] — 2026-09-01
 
 Web al día con pizarra **3.21.0**.
