@@ -33,7 +33,7 @@
       <div class="topbar__brand">
         <img class="topbar__logo-icon" src="img/logo-96.png" alt="" aria-hidden="true" width="32" height="32" />
         <h1 class="topbar__logo-text">Py<span class="topbar__logo-accent">zarra</span></h1>
-        <span class="topbar__badge">v4.9.0</span>
+        <span class="topbar__badge">v4.10.0</span>
         <!-- Aviso de autoguardado: visible SOLO mientras localStorage rechaza
              el guardado (cuota llena). Sin él, el fallo era un catch mudo y el
              trabajo posterior se perdía en silencio al recargar. -->
@@ -772,7 +772,7 @@
           <li>Una <strong>imagen de verdad</strong> se pega con <kbd>Ctrl</kbd>+<kbd>V</kbd> o se suelta sobre el lienzo (PNG y JPG); viaja dentro del proyecto JSON, así que se recupera al abrirlo</li>
           <li><strong>Formulario</strong>, <strong>Tabla</strong> y <strong>Gráfico</strong> abren un catálogo al pulsarlas: casilla, radio, interruptor, desplegable y deslizador; tabla con cabecera, lista, con avatar, con paginación o con casillas; barras, líneas, tarta, indicador, anillo o área. La variante elegida queda como default de creación. Sin atajo: no quedaban teclas sueltas libres</li>
           <li><strong>Diálogo</strong> elige entre confirmación (dos botones) y alerta (uno); <strong>Pestañas</strong> y <strong>Menú lateral</strong> son piezas únicas —fila de pestañas con una activa, menú vertical con ítem activo— y comparten el modal de ajustes de los demás componentes. Tampoco llevan atajo</li>
-          <li><strong>Piezas</strong> reúne las menores: avatar, barra de progreso, migas de pan, globo, insignia y paginación. Cada una nace con su caja natural a un clic</li>
+          <li><strong>Piezas</strong> reúne las menores: avatar, barra de progreso, migas de pan, globo, insignia y paginación. Cada una nace con su caja natural a un clic. El <strong>globo</strong> elige además su forma —redondeado, bocadillo o nube de pensamiento— y el lado del <strong>pico</strong> (abajo, arriba, izquierda o derecha) en dos selects de su modal; el icono del catálogo enseña la combinación elegida</li>
           <li>El <strong>rótulo</strong> vale también para Formulario (el texto junto al control), Tabla (su título) y Diálogo (el de su barra); Gráfico, Pestañas y Menú lateral simulan su texto con trazos, como la descripción de la Tarjeta</li>
         </ul>
       </section>
@@ -1526,7 +1526,16 @@
 
   <dialog class="modal" id="modal-uipiece" aria-labelledby="modal-uipiece-title">
       <h3 class="modal__heading" id="modal-uipiece-title">Piezas</h3>
-      <p class="modal__sub">Avatar, progreso, migas, globo, insignia o paginación</p>
+      <p class="modal__sub">Avatar, progreso, migas, globo, insignia o paginación.
+        Los dos selects solo cambian el globo.</p>
+      <label class="panel__field" for="tooltip-shape">
+        <span class="modal__field-label">Forma del globo</span>
+        <select class="panel__select" id="tooltip-shape"></select>
+      </label>
+      <label class="panel__field" for="tooltip-tail">
+        <span class="modal__field-label">Pico del globo</span>
+        <select class="panel__select" id="tooltip-tail"></select>
+      </label>
       <div id="uipiece-catalog"></div>
       <button class="btn btn--ghost btn--block modal__cancel">Cancelar</button>
   </dialog>

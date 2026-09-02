@@ -7,6 +7,16 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.10.0] — 2026-09-02
+
+### Añadido
+
+- **Web al día con pizarra 3.24.0 (`6ef0591`)** — el globo de «Piezas» elige
+  su forma (redondeado, bocadillo o nube de pensamiento) y el lado del pico
+  (abajo, arriba, izquierda o derecha) en dos selects de su modal, con el
+  icono del catálogo repintado en vivo. En este `index.html` propio entran
+  los dos selects, la Ayuda al día y el badge v4.10.0.
+
 ## [4.9.0] — 2026-09-02
 
 ### Añadido
