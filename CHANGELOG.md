@@ -7,6 +7,20 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.9.0] — 2026-09-02
+
+### Añadido
+
+- **Web al día con pizarra 3.23.0 (`e820d8d`)** — la sección UI completa:
+  Botón, Input, Tarjeta, Navbar y Diálogo abren catálogo de variantes al
+  elegirlos (la primera entrada es el dibujo histórico); la herramienta
+  «Piezas» reúne avatar, progreso, migas, globo, insignia y paginación;
+  Gráfico gana anillo y área y Tabla paginación y casillas; el Marco coloca
+  a un clic la caja del preset de dispositivo (móvil/tablet/escritorio); el
+  grupo UI del sidebar queda reordenado por flujo de maquetado. En este
+  `index.html` propio entran los siete diálogos nuevos, la Ayuda al día y el
+  badge v4.9.0.
+
 ## [4.8.2] — 2026-09-01
 
 Web al día con pizarra `d84b652` (v3.22.2).
