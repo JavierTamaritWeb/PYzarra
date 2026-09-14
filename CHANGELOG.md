@@ -7,6 +7,18 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.12.0] — 2026-09-14
+
+### Añadido
+
+- **Web al día con pizarra 3.26.0 (`69e51f5`)** — «Select» dentro de una
+  imagen separa esa región como pieza propia: al enmarcar una parte de una
+  foto ya no se selecciona la foto entera, sino que el trozo pasa a ser una
+  imagen independiente (moverla, borrarla, copiarla) y la original queda con
+  el hueco; Deshacer lo revierte. Con «Mover» la imagen se arrastra entera
+  como siempre. En este `index.html` propio entran la Ayuda al día y el
+  badge v4.12.0.
+
 ## [4.10.0] — 2026-09-02
 
 ### Añadido
