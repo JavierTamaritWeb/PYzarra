@@ -7,6 +7,20 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.13.0] — 2026-09-16
+
+### Eliminado
+
+- **Web al día con pizarra 3.27.0 (`4ff6a49`)** — se retira el anclaje de
+  conectores: con un óvalo en el lienzo, una Flecha, Flecha curva o Flecha
+  semicírculo que cruzara su borde saltaba al borde de la caja del óvalo,
+  fuera de la figura; solo la Línea entraba. Ahora cada extremo se queda
+  exactamente donde se suelta, al crear y al arrastrar su handle, y mover un
+  elemento no arrastra a ninguna flecha. Las escenas guardadas cargan con sus
+  flechas en el mismo sitio y sin anclas. Cambian `js/app.js`, `js/eraser.js`
+  y `js/exporter.js` del build; en este `index.html` propio entran la Ayuda
+  al día y el badge v4.13.0.
+
 ## [4.12.0] — 2026-09-14
 
 ### Añadido
