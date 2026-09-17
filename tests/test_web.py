@@ -22,6 +22,7 @@ SCRIPTS_ORIGINALES = [
     "js/regular-polygon.js",
     "js/trapezoid.js",
     "js/hatch.js",
+    "js/shape-text.js",
     "js/airbrush.js",
     "js/flood.js",
     "js/eraser.js",

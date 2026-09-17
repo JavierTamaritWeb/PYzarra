@@ -7,6 +7,21 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.14.0] — 2026-09-17
+
+### Añadido
+
+- **Web al día con pizarra 3.28.0 (`d47bbf4`)** — texto dentro de las formas,
+  ajustado como en Word: doble clic sobre un rectángulo, óvalo, triángulo,
+  polígono o estrella abre el editor encima y el texto queda dentro,
+  repartido en líneas al ancho de la caja inscrita de la figura y centrado;
+  si no cabe, la letra se reduce sola. El campo «Texto» del panel lo edita
+  también, viaja con la forma y sale igual en el SVG y el HTML exportados.
+  Entra el módulo nuevo `js/shape-text.js` (cargado tras `hatch.js` en este
+  `index.html` propio y pineado en `tests/test_web.py`); cambian `js/app.js`,
+  `js/renderer.js`, `js/exporter.js` y `js/eraser.js` del build; Ayuda y
+  badge v4.14.0 al día.
+
 ## [4.13.1] — 2026-09-17
 
 ### Corregido
