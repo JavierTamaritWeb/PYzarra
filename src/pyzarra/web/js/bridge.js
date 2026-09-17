@@ -18,6 +18,20 @@
   var ready = false;
   var pendingWrites = {}; // escrituras de localStorage antes de pywebviewready
 
+  /* ¿Arranca la web con el almacén local VACÍO de claves de la app? Se mira
+     aquí, antes de que app.js corra: WKWebView bajo pywebview no persiste
+     localStorage entre arranques (modo privado por defecto), así que lo normal
+     es que llegue vacío y la copia de Python sea la única verdad. app.js, al no
+     encontrar nada, crea una pestaña nueva y autoguarda una escena vacía antes
+     de que el puente esté listo; sin esta marca, ese autoguardado pendiente
+     pisaba en disco el dibujo real (v4.13.1). */
+  var almacenVacioAlArrancar = true;
+  try {
+    for (var i = 0; i < window.localStorage.length; i++) {
+      if (esClaveApp(window.localStorage.key(i))) { almacenVacioAlArrancar = false; break; }
+    }
+  } catch (e) { /* localStorage inaccesible: se trata como vacío */ }
+
   function api() {
     return window.pywebview && window.pywebview.api;
   }
@@ -155,18 +169,27 @@
     ready = true;
     api().load_state().then(function (estado) {
       estado = estado || {};
-      // Si localStorage se borro (fragil bajo file://) pero Python tiene
-      // datos, restauramos y recargamos UNA vez.
+      // Si localStorage llegó vacío pero Python tiene datos, la copia de
+      // Python es la verdad: se restaura CADA clave que Python tenga —aunque
+      // app.js ya la haya reescrito mientras el puente no estaba listo— y se
+      // recarga UNA vez. La escritura pendiente de esas claves se descarta:
+      // es la escena vacía que app.js fabricó al no encontrar nada, y
+      // volcarla a disco destruía el dibujo guardado. Si el almacén traía
+      // datos al arrancar, manda el almacén y lo pendiente se vuelca.
       var restaurado = false;
       var claveTestigo = null; // una clave restaurada, para verificar despues
       Object.keys(estado).forEach(function (k) {
-        if (esClaveApp(k) && window.localStorage.getItem(k) === null && !(k in pendingWrites)) {
+        if (!esClaveApp(k)) return;
+        var faltaba = window.localStorage.getItem(k) === null;
+        if (faltaba || (almacenVacioAlArrancar && k in pendingWrites)) {
           origSetItem.call(window.localStorage, k, estado[k]);
+          delete pendingWrites[k];
           restaurado = true;
           claveTestigo = k;
         }
       });
-      // Volcar escrituras que ocurrieron antes de estar listos
+      // Volcar escrituras que ocurrieron antes de estar listos (las claves
+      // que Python no tenía)
       Object.keys(pendingWrites).forEach(function (k) {
         api().save_state(k, pendingWrites[k]);
       });
