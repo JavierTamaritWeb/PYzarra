@@ -7,6 +7,17 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.15.0] — 2026-09-17
+
+### Añadido
+
+- **Web al día con pizarra 3.29.0 (`e5b96a8`)** — el texto de las formas
+  tiene estilo propio: con la forma seleccionada, la sección «Texto» del
+  panel edita su tamaño, negrita, color, letra (la del lienzo o cualquiera
+  de las siete, forma a forma) y alineación horizontal y vertical dentro de
+  su caja. Cambian `js/shape-text.js`, `js/app.js`, `js/renderer.js`,
+  `js/exporter.js` y `css/styles.css` del build; Ayuda y badge v4.15.0 al día.
+
 ## [4.14.0] — 2026-09-17
 
 ### Añadido
