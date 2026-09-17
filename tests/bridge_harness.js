@@ -88,6 +88,14 @@ window.localStorage.setItem('sketchwire.library', '[]');
 
 (listeners.pywebviewready || []).forEach(fn => fn());
 setTimeout(() => {
+  // Si el puente pidió recargar, app.js (aún vivo, con su escena vacía en
+  // memoria) oye `pagehide` y guarda «ahora» el autosave: es lo que borraba
+  // el dibujo en disco en cada arranque real.
+  if (window.location.reloads) {
+    window.localStorage.setItem('sketchwire.autosave', ESCENA_VACIA);
+  }
+}, 5);
+setTimeout(() => {
   process.stdout.write(JSON.stringify({
     saves,
     local: window.localStorage._dump(),

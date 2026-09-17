@@ -39,7 +39,8 @@ def test_almacen_vacio_con_datos_en_python_gana_python_y_recarga_una_vez():
     assert "sketchwire.tabs" not in guardadas, "ni las pestañas nuevas a las guardadas"
     assert guardadas == {"sketchwire.library": "[]"}, "solo llega a disco lo que Python no tenía"
     escena = json.loads(r["local"]["sketchwire.autosave"])
-    assert escena["elements"][0]["type"] == "rect", "el almacén queda con el dibujo de Python"
+    assert escena["elements"][0]["type"] == "rect", (
+        "el almacén queda con el dibujo de Python, también tras el pagehide de la recarga")
     assert json.loads(r["local"]["sketchwire.tabs"])["active"] == "viejo"
     assert r["local"]["sketchwire.prefs"] == '{"a":1}'
     assert r["reloads"] == 1, "recarga una vez para que app.js lea lo restaurado"
@@ -48,7 +49,12 @@ def test_almacen_vacio_con_datos_en_python_gana_python_y_recarga_una_vez():
 def test_almacen_con_datos_al_arrancar_manda_el_almacen():
     r = correr("lleno")
     guardadas = dict(r["saves"])
-    assert guardadas == {"sketchwire.library": "[]"}
+    assert guardadas["sketchwire.library"] == "[]"
+    # El autosave que app.js guarda al recargar es el del almacén, que aquí
+    # es la verdad: espejarlo a disco es correcto (y es lo que ya había).
+    assert set(guardadas) <= {"sketchwire.library", "sketchwire.autosave"}
+    if "sketchwire.autosave" in guardadas:
+        assert guardadas["sketchwire.autosave"] == r["local"]["sketchwire.autosave"]
     assert json.loads(r["local"]["sketchwire.tabs"])["active"] == "nuevo", (
         "lo que ya había en el almacén no se toca")
     # Python tenía prefs y el almacén no: esa sí se restaura, y recarga.

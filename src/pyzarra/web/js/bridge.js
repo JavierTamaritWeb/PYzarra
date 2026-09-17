@@ -17,6 +17,11 @@
 
   var ready = false;
   var pendingWrites = {}; // escrituras de localStorage antes de pywebviewready
+  // Claves restauradas desde Python y protegidas mientras dura la recarga:
+  // app.js sigue vivo con la escena vacía que fabricó al arrancar, y al morir
+  // la página (`pagehide`) la guarda «ahora»; esa escritura no debe pisar ni
+  // el almacén ni el disco (v4.13.1).
+  var protegidasEnRecarga = null;
 
   /* ¿Arranca la web con el almacén local VACÍO de claves de la app? Se mira
      aquí, antes de que app.js corra: WKWebView bajo pywebview no persiste
@@ -147,6 +152,7 @@
   var origSetItem = Storage.prototype.setItem;
   Storage.prototype.setItem = function (k, v) {
     if (this === window.localStorage && esClaveApp(k)) {
+      if (protegidasEnRecarga && protegidasEnRecarga[k]) return;
       if (ready && api()) {
         api().save_state(k, String(v));
       } else {
@@ -159,6 +165,7 @@
   var origRemoveItem = Storage.prototype.removeItem;
   Storage.prototype.removeItem = function (k) {
     if (this === window.localStorage && esClaveApp(k)) {
+      if (protegidasEnRecarga && protegidasEnRecarga[k]) return;
       delete pendingWrites[k];
       if (ready && api()) api().delete_state(k);
     }
@@ -178,6 +185,7 @@
       // datos al arrancar, manda el almacén y lo pendiente se vuelca.
       var restaurado = false;
       var claveTestigo = null; // una clave restaurada, para verificar despues
+      var restauradas = {};
       Object.keys(estado).forEach(function (k) {
         if (!esClaveApp(k)) return;
         var faltaba = window.localStorage.getItem(k) === null;
@@ -185,6 +193,7 @@
           origSetItem.call(window.localStorage, k, estado[k]);
           delete pendingWrites[k];
           restaurado = true;
+          restauradas[k] = true;
           claveTestigo = k;
         }
       });
@@ -210,6 +219,9 @@
       catch (e) { /* sessionStorage inaccesible: cuenta como recargado */ yaRecargado = true; }
       if (seAplico && !yaRecargado) {
         try { window.sessionStorage.setItem("bridge.reloaded", "1"); } catch (e) { }
+        // Desde aquí hasta que la página muera, lo que app.js escriba en las
+        // claves restauradas es su estado de arranque vacío: se ignora.
+        protegidasEnRecarga = restauradas;
         window.location.reload();
       }
     }).catch(function (e) {
