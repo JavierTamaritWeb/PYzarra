@@ -7,6 +7,7 @@ o porque una ruta es absoluta.
 """
 
 import re
+from pathlib import Path
 
 import pytest
 
@@ -261,3 +262,16 @@ class TestIdsDelBuild:
         assert not faltan, (
             "app.js pide ids que el index.html propio no tiene (el markup de pizarra "
             f"no se trajo entero): {faltan}")
+
+
+class TestVentana:
+    def test_el_almacen_local_es_persistente(self):
+        """pywebview arranca en modo privado por defecto y no persiste
+        localStorage: la web guarda ahí todo su estado y cada arranque dependía
+        de la restauración del puente, que app.js (arranca antes de
+        pywebviewready) acababa pisando con su lienzo vacío (v4.15.2)."""
+        src = (Path(__file__).resolve().parents[1] / "src" / "pyzarra" / "main.py").read_text(encoding="utf-8")
+        llamadas = re.findall(r"webview\.start\([^)]*\)", src)
+        assert llamadas, "main.py llama a webview.start"
+        for llamada in llamadas:
+            assert "private_mode=False" in llamada, llamada

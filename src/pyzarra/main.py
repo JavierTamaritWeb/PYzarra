@@ -54,11 +54,19 @@ def main() -> None:
 
     # debug=True abre las DevTools (inspeccionar elemento).
     # Ponlo en True mientras desarrollas.
+    # private_mode=False (v4.15.2): pywebview arranca WKWebView en modo privado
+    # por defecto y NO persiste localStorage entre arranques ni, bajo file://,
+    # de forma fiable a través de una recarga. La web guarda todo su estado en
+    # localStorage y bridge.js lo espeja a disco; con el almacén efímero cada
+    # arranque dependía de la restauración del puente, y app.js (que arranca
+    # antes de `pywebviewready`) veía siempre un lienzo vacío y acababa
+    # pisando el disco con él. Con el almacén persistente la app se comporta
+    # como en un navegador y el espejo en disco queda de red de seguridad.
     if sys.platform == "darwin":
         # En macOS, menu= se pierde (ver _instalar_menu_mac).
-        webview.start(func=_instalar_menu_mac, args=(window,), debug=False)
+        webview.start(func=_instalar_menu_mac, args=(window,), debug=False, private_mode=False)
     else:
-        webview.start(menu=build_menu(), debug=False)
+        webview.start(menu=build_menu(), debug=False, private_mode=False)
 
 
 if __name__ == "__main__":

@@ -214,11 +214,15 @@
         seAplico = restaurado &&
           window.localStorage.getItem(claveTestigo) === estado[claveTestigo];
       } catch (e) { /* localStorage inaccesible: no recargar */ }
-      var yaRecargado = false;
-      try { yaRecargado = !!window.sessionStorage.getItem("bridge.reloaded"); }
-      catch (e) { /* sessionStorage inaccesible: cuenta como recargado */ yaRecargado = true; }
+      // Hasta DOS recargas (v4.15.2): si el almacén no conservó la primera
+      // restauración (file:// en WKWebView puede descartarla), se reintenta
+      // una vez más antes de rendirse; más allá sería el bucle de siempre.
+      var recargas = 0;
+      try { recargas = Number(window.sessionStorage.getItem("bridge.reloaded")) || 0; }
+      catch (e) { /* sessionStorage inaccesible: cuenta como recargado */ recargas = 99; }
+      var yaRecargado = recargas >= 2;
       if (seAplico && !yaRecargado) {
-        try { window.sessionStorage.setItem("bridge.reloaded", "1"); } catch (e) { }
+        try { window.sessionStorage.setItem("bridge.reloaded", String(recargas + 1)); } catch (e) { }
         // Desde aquí hasta que la página muera, lo que app.js escriba en las
         // claves restauradas es su estado de arranque vacío: se ignora.
         protegidasEnRecarga = restauradas;

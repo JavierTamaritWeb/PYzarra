@@ -7,6 +7,18 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.15.2] — 2026-09-17
+
+### Corregido
+
+- **Arrancar la app seguía vaciando el disco por otra vía.** pywebview abre
+  WKWebView en modo privado y `localStorage` no persiste entre arranques ni,
+  bajo `file://`, a través de la recarga que hacía el puente al restaurar: la
+  web volvía a arrancar vacía y acababa espejando ese vacío en disco. Ahora
+  la ventana arranca con `private_mode=False` (almacén persistente, como en
+  un navegador) y el puente admite una segunda recarga antes de rendirse.
+  Guardia `TestVentana`; registro en `BUGS.md`.
+
 ## [4.15.1] — 2026-09-17
 
 ### Corregido

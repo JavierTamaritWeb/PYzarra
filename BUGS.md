@@ -4,6 +4,24 @@ Errores propios de la app de escritorio (no de la web, que tiene su propio
 [BUGS.md en pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/BUGS.md)).
 Cada entrada: síntoma, causa, arreglo y la **guardia** que falla si vuelve.
 
+### v4.15.2 — Arrancar la app seguía dejando el disco en blanco por otra vía
+
+- **Síntoma:** al arrancar la 4.15.1 con un dibujo en disco, seis segundos
+  después el autosave estaba vacío y las preferencias en las de fábrica.
+- **Causa:** pywebview arranca WKWebView en **modo privado** (`private_mode`
+  por defecto): `localStorage` no persiste entre arranques y, bajo `file://`,
+  ni siquiera conservó la restauración a través de la recarga. Tras recargar,
+  app.js volvía a arrancar sin nada, el puente ya no podía recargar (guarda
+  anti-bucle) y el lienzo vacío acababa espejado en disco en cuanto app.js
+  guardaba algo. El parche de la 4.13.1 cubría las dos vías conocidas, pero
+  el suelo —un almacén que no se queda con nada— seguía ahí.
+- **Arreglo:** `webview.start(..., private_mode=False)`: almacén persistente,
+  como en un navegador; el espejo en disco pasa a ser red de seguridad. El
+  puente admite además una segunda recarga antes de rendirse.
+- **Guardia:** `tests/test_web.py::TestVentana` (pinea `private_mode=False` en
+  toda llamada a `webview.start`) y la prueba real de dos arranques seguidos
+  con un dibujo sembrado en disco, que lo conserva.
+
 ### v4.15.1 — «Limpiar todo» (y más botones) dejaron de funcionar en la app
 
 - **Síntoma:** en la app 4.15.0 el botón «Limpiar todo» no hacía nada, y

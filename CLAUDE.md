@@ -47,6 +47,7 @@ Las dos excepciones, propias de pyzarra (NO vienen del build):
 
 - Recorta descendientes `position:fixed` por el `overflow` de un ancestro (Chrome no). Fue la causa de las barras flotantes «escondidas detrás del canvas»: por eso una barra arrastrada se cuelga de `.app`, fuera de la columna con scroll.
 - Rechaza peticiones (manifest, fetch) bajo `file://` por CORS («Origin null»).
+- **`localStorage` es efímero en modo privado** (el default de `webview.start`) y bajo `file://` ni siquiera aguantó una recarga: la app arranca con `private_mode=False` (v4.15.2, pineado por test). Sin eso, cada arranque dependía de la restauración del puente y el lienzo vacío de app.js acababa en disco.
 - Probar solo en Chrome no basta: reproducir con el WebKit de Playwright cuando el bug sea «solo en la app».
 
 ## Empaquetado
