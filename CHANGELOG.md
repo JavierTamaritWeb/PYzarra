@@ -7,6 +7,20 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.16.0] — 2026-09-17
+
+### Cambiado
+
+- **Web al día con pizarra 3.30.0 (`2467bcb`)** — el texto se escribe en
+  varias filas: en el editor de texto suelto y en el de una forma, Enter hace
+  un salto de línea, como en Word, y Ctrl/Cmd+Enter (o un clic fuera)
+  confirma; hasta ahora Enter confirmaba y el salto exigía Mayús+Enter, así
+  que todo texto quedaba en una sola fila. El editor crece con lo escrito y
+  no envuelve, de modo que se ve tal como se va a pintar. En los rótulos de
+  una línea (botón, input, flecha…) Enter sigue confirmando. Cambian
+  `js/app.js` y `css/styles.css` del build; en este `index.html` propio
+  entran el placeholder del editor, la Ayuda al día y el badge v4.16.0.
+
 ## [4.15.2] — 2026-09-17
 
 ### Corregido
