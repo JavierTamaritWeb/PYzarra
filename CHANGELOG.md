@@ -14,13 +14,17 @@ El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 - **Arrancar la app podía borrar el dibujo guardado.** WKWebView bajo
   pywebview no persiste `localStorage` entre arranques, así que la web
   arranca vacía; app.js crea entonces una pestaña nueva y autoguarda una
-  escena vacía antes de que el puente esté listo, y `bridge.js` volcaba esas
-  escrituras pendientes a disco por encima de la copia de Python: el autosave
-  y las pestañas quedaban en blanco. Ahora, si el almacén llegó vacío, la
-  copia de Python gana para todas las claves que tenga (lo pendiente de esas
-  claves se descarta) y se recarga una vez; solo llega a disco lo que Python
-  no tenía. Guardado en `tests/test_bridge.py` con un arnés node que ejecuta
-  el `bridge.js` real.
+  escena vacía. `bridge.js` restauraba la copia de Python y recargaba, pero
+  por dos vías esa escena vacía acababa en disco: las escrituras pendientes
+  de antes de que el puente estuviera listo se volcaban por encima de lo
+  restaurado, y al recargar app.js —aún vivo con su escena vacía— la
+  guardaba «ahora» al oír `pagehide`, y el puente la espejaba. Ahora, si el
+  almacén llegó vacío, la copia de Python gana para todas las claves que
+  tenga: lo pendiente de esas claves se descarta y, mientras dura la recarga,
+  sus escrituras se ignoran; solo llega a disco lo que Python no tenía.
+  Guardado en `tests/test_bridge.py` con un arnés node que ejecuta el
+  `bridge.js` real, `pagehide` incluido, y comprobado arrancando la app
+  empaquetada con una escena en disco.
 
 ## [4.13.0] — 2026-09-16
 
