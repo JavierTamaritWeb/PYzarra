@@ -33,7 +33,7 @@
       <div class="topbar__brand">
         <img class="topbar__logo-icon" src="img/logo-96.png" alt="" aria-hidden="true" width="32" height="32" />
         <h1 class="topbar__logo-text">Py<span class="topbar__logo-accent">zarra</span></h1>
-        <span class="topbar__badge">v4.15.0</span>
+        <span class="topbar__badge">v4.15.1</span>
         <!-- Aviso de autoguardado: visible SOLO mientras localStorage rechaza
              el guardado (cuota llena). Sin él, el fallo era un catch mudo y el
              trabajo posterior se perdía en silencio al recargar. -->
@@ -293,6 +293,33 @@
               <input class="panel__color-picker" type="color" id="text-shadow-color" value="#7d8295" />
               Color de la sombra
             </label>
+          </div>
+          <!-- Texto de las formas (v3.29.0): color, letra y alineación propios.
+               Solo aparecen con una forma con texto seleccionada. -->
+          <div class="panel__canvas-colors" id="row-label-color">
+            <label class="panel__canvas-color">
+              <input class="panel__color-picker" type="color" id="label-color" value="#1a1a2e" />
+              Color del texto
+            </label>
+          </div>
+          <label class="panel__field" id="row-label-font" for="label-font">
+            <span class="panel__title">Letra del texto</span>
+            <select class="panel__select" id="label-font"></select>
+          </label>
+          <div class="panel__field" id="row-label-align">
+            <span class="panel__title">Alineación</span>
+            <div class="panel__row-2">
+              <select class="panel__select" id="label-align" aria-label="Alineación horizontal">
+                <option value="left">Izquierda</option>
+                <option value="center">Centro</option>
+                <option value="right">Derecha</option>
+              </select>
+              <select class="panel__select" id="label-valign" aria-label="Alineación vertical">
+                <option value="top">Arriba</option>
+                <option value="middle">Medio</option>
+                <option value="bottom">Abajo</option>
+              </select>
+            </div>
           </div>
         </section>
 
@@ -730,8 +757,8 @@
         <ul class="modal__help-list">
           <li><kbd>E</kbd>: activa el <strong>Borrador</strong>; arrastra sobre trazos, rellenos o formas para <strong>eliminarlos</strong> — no los tapa, así que lo borrado no reaparece al mover el dibujo</li>
           <li>Recta, flecha, lápiz, <strong>flecha curva</strong>, <strong>aerógrafo</strong> y el <strong>contorno de las formas sin relleno</strong> se <strong>recortan</strong> por donde pasa el círculo, en vez de desaparecer enteros: pasar por el cruce de dos trazos solo borra ese tramo, y una mancha de espray se parte en dos</li>
-          <li><strong>Texto, emojis, imágenes y componentes</strong> no tienen trazo que recortar, así que lo que queda se convierte en <strong>imagen</strong>: se ve igual y conserva el mordisco, pero deja de editarse como texto o como componente</li>
-          <li>Si el barrido no quita un solo píxel no pasa nada — cruzar el hueco vacío de una tarjeta ya no se la lleva—. Solo desaparecen enteras las <strong>formas rellenas</strong>: su dibujo es una superficie</li>
+          <li><strong>Texto, emojis, imágenes, componentes y formas rellenas</strong> no tienen trazo que recortar, así que lo que queda se convierte en <strong>imagen</strong>: se ve igual y conserva el mordisco, pero deja de editarse como texto, como componente o como forma</li>
+          <li>Si el barrido no quita un solo píxel no pasa nada — cruzar el hueco vacío de una tarjeta ya no se la lleva—. Nada desaparece entero por un roce</li>
           <li>Al elegirlo se abre un modal para ajustar el tamaño, con previsualización; <strong>volver a pulsar la herramienta</strong> lo reabre sin soltarla</li>
           <li>El tamaño se ajusta solo ahí: el regulador <strong>«Trazo»</strong> del panel, que antes cambiaba a <strong>«Tamaño del borrador»</strong> mientras el borrador estaba activo, se retiró en la v2.21.0 junto con el ⚙ de esa sección</li>
           <li>El tamaño se ajusta entre 4 y 100 px (16 px por defecto) y es independiente del lápiz y de las formas</li>

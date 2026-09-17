@@ -7,6 +7,18 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.15.1] — 2026-09-17
+
+### Corregido
+
+- **«Limpiar todo» y otros mandos no funcionaban en la app 4.15.0.** El
+  `index.html` propio no traía las filas nuevas del panel (estilo del texto
+  de las formas) que el `app.js` 3.29.0 espera; `init()` fallaba al cablear el
+  primer id ausente y todo lo cableado después quedaba sin handler. Traído el
+  markup (y dos líneas de la Ayuda del borrador atrasadas desde la 3.25.0).
+  Nueva guardia `TestIdsDelBuild`: todo id que el `app.js` del build pide
+  tiene que existir en el `index.html` propio. Registro en `BUGS.md` (nuevo).
+
 ## [4.15.0] — 2026-09-17
 
 ### Añadido

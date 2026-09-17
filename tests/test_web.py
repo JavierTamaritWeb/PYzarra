@@ -231,3 +231,33 @@ class TestMenuNativo:
         assert len(menus) >= 3
         titulos = [m.title for m in menus]
         assert "Archivo" in titulos and "Edición" in titulos
+
+
+class TestIdsDelBuild:
+    """Todo id que app.js pide con `$('…')` tiene que existir en el index.html
+    PROPIO (v4.15.1). El index.html no viene del build: cada cambio de markup
+    en pizarra (una fila nueva del panel, un modal) hay que traerlo a mano, y
+    si se olvida, `init()` de app.js revienta al cablear el primer id que
+    falta y TODO lo que se cablea después se queda sin handler — así dejó de
+    funcionar «Limpiar todo» en la 4.15.0, con la app abriendo sin avisar.
+    """
+
+    ALIAS_RE = re.compile(r"\b([A-Za-z_$][\w$]*)=([A-Za-z_$][\w$]*)=>document\.getElementById\(\2\)")
+
+    def _ids_pedidos(self, web_dir) -> set[str]:
+        app = (web_dir / "js" / "app.js").read_text(encoding="utf-8")
+        m = self.ALIAS_RE.search(app)
+        assert m, "app.js define un alias `X=e=>document.getElementById(e)`; si cambia, hay que actualizar este test"
+        alias = re.escape(m.group(1))
+        pedidos = set(re.findall(rf"(?<![\w$.]){alias}\(\"([A-Za-z][\w-]*)\"\)", app))
+        pedidos |= set(re.findall(r"getElementById\(\"([A-Za-z][\w-]*)\"\)", app))
+        assert len(pedidos) > 200, f"se esperaban cientos de ids pedidos, hay {len(pedidos)}"
+        return pedidos
+
+    def test_todos_los_ids_que_pide_app_js_existen_en_el_index_propio(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        presentes = set(re.findall(r'\bid="([^"]+)"', html))
+        faltan = sorted(self._ids_pedidos(web_dir) - presentes)
+        assert not faltan, (
+            "app.js pide ids que el index.html propio no tiene (el markup de pizarra "
+            f"no se trajo entero): {faltan}")

@@ -30,7 +30,13 @@ App de escritorio: **pywebview** abre una ventana nativa que carga `src/pyzarra/
 1. Editar en `pizarra` (`src/js/`, `src/scss/`) y pasar sus suites: `npm test` y `npx playwright test`.
 2. `npm run build` (gulp) regenera `css/styles.css` y `dist/`.
 3. Copiar `dist/js/*.js` y `dist/css/styles.css` aquí, y re-aplicar el único rebranding: `pizarra-biblioteca.json` → `pyzarra-biblioteca.json` en `js/app.js`.
-4. `uv run pytest` valida la integración.
+4. **Traer al `index.html` propio cualquier cambio de markup** de pizarra (filas del panel, modales, Ayuda, badge). Comprobarlo con el diff normalizado; lo único que debe quedar es el logo «Py/Pi», las rutas `img/`, `bridge.js` y el manifest:
+   ```bash
+   norm() { sed -E 's/\?v=[0-9.]+//g; s/v[0-9]+\.[0-9]+\.[0-9]+/vX/g' "$1"; }
+   diff <(norm ../pizarra/index.html) <(norm src/pyzarra/web/index.html) | grep -E "^[<>]" | grep -v "bridge.js\|manifest\|js/\|img/\|Pyzarra\|Pizarra"
+   ```
+   Si falta un id que `app.js` pide, `init()` revienta a mitad y los mandos cableados después dejan de funcionar sin ningún aviso (v4.15.1, «Limpiar todo»); `tests/test_web.py::TestIdsDelBuild` lo detecta.
+5. `uv run pytest` valida la integración.
 
 Las dos excepciones, propias de pyzarra (NO vienen del build):
 
