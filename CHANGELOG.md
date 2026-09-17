@@ -7,6 +7,18 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.16.1] — 2026-09-17
+
+### Corregido
+
+- **Web al día con pizarra 3.30.1 (`30a0fc3`)** — terminar el texto era confuso:
+  con Enter partiendo líneas, el clic fuera con la herramienta Texto abría de
+  golpe otro editor vacío de una línea que parecía haberse comido lo escrito,
+  y Esc lo tiraba. Ahora Esc termina, un botón «✓ Listo» cuelga del editor y
+  el clic fuera solo termina; ninguna salida pierde el texto. Cambian
+  `js/app.js` y `css/styles.css` del build; en este `index.html` propio
+  entran el botón `#text-done`, el placeholder, la Ayuda y el badge v4.16.1.
+
 ## [4.16.0] — 2026-09-17
 
 ### Cambiado
