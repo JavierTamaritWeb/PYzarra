@@ -271,8 +271,11 @@ class TestVentana:
         de la restauración del puente, que app.js (arranca antes de
         pywebviewready) acababa pisando con su lienzo vacío (v4.15.2)."""
         src = (Path(__file__).resolve().parents[1] / "src" / "pyzarra" / "main.py").read_text(encoding="utf-8")
-        # Solo las LLAMADAS con argumentos: los comentarios mencionan `webview.start()`.
-        llamadas = re.findall(r"webview\.start\((?=[^)]*\w)[^)]*\)", src)
-        assert llamadas, "main.py llama a webview.start"
+        # Cada línea que llama a webview.start (los comentarios lo mencionan
+        # como `webview.start()`, sin argumentos: esas no cuentan).
+        llamadas = [ln.strip() for ln in src.splitlines()
+                    if "webview.start(" in ln and not ln.strip().startswith("#")
+                    and "webview.start()" not in ln]
+        assert len(llamadas) >= 2, f"main.py llama a webview.start en cada rama: {llamadas}"
         for llamada in llamadas:
             assert "private_mode=False" in llamada, llamada
