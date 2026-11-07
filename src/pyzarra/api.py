@@ -106,6 +106,13 @@ class Api:
             ruta.unlink()
         return True
 
+    # ---------- Imagenes soltadas sobre el icono del Dock ----------
+    def imagenes_pendientes(self) -> list[dict]:
+        """Imagenes encoladas ({name, mime, data_b64}); la cola queda vacia."""
+        from pyzarra import abrir_archivos
+
+        return abrir_archivos.vaciar()
+
     # ---------- metodos privados: NO visibles desde JS ----------
     def _state_path(self, key: str) -> Path:
         return self._dir / f"{key}.json"

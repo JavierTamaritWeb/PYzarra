@@ -9,6 +9,10 @@
                        escena vacía y Python tiene el dibujo → Python gana
      lleno             el almacén ya traía datos → el almacén gana
      primer-arranque   almacén y Python vacíos → lo pendiente va a disco
+     imagenes          como primer-arranque, con dos imágenes soltadas en el
+                       Dock esperando en la cola de Python
+     imagenes-con-recarga  como vacio-con-python (el puente recarga), con
+                       imágenes en la cola: NO deben insertarse antes de recargar
    Escribe en stdout un JSON con lo observado. */
 const fs = require('fs');
 const vm = require('vm');
@@ -44,13 +48,47 @@ const ESCENA_VACIA = JSON.stringify({ elements: [], settings: {} });
 const TABS_PYTHON = JSON.stringify({ v: 1, active: 'viejo', order: [{ id: 'viejo', label: '' }] });
 const TABS_NUEVAS = JSON.stringify({ v: 1, active: 'nuevo', order: [{ id: 'nuevo', label: '' }] });
 
-const python = escenario === 'primer-arranque' ? {}
+const conImagenes = escenario.startsWith('imagenes');
+const python = (escenario === 'primer-arranque' || escenario === 'imagenes') ? {}
   : { 'sketchwire.autosave': ESCENA_PYTHON, 'sketchwire.tabs': TABS_PYTHON, 'sketchwire.prefs': '{"a":1}' };
 const localInicial = escenario === 'lleno'
   ? { 'sketchwire.autosave': ESCENA_VACIA, 'sketchwire.tabs': TABS_NUEVAS } : {};
 
 const saves = [];
 const listeners = {};
+
+// Cola de imágenes de Python (abrir_archivos.vaciar): se entrega una vez.
+let colaImagenes = conImagenes ? [
+  { name: 'foto.png', mime: 'image/png', data_b64: Buffer.from('PNGDATOS').toString('base64') },
+  { name: 'otra.jpg', mime: 'image/jpeg', data_b64: Buffer.from('JPG').toString('base64') },
+] : [];
+let llamadasPendientes = 0;
+
+// DOM mínimo: el lienzo registra los `drop` que recibe.
+const drops = [];
+const mainCanvas = {
+  getBoundingClientRect: () => ({ left: 100, top: 50, right: 1100, bottom: 750 }),
+  parentElement: { getBoundingClientRect: () => ({ left: 0, top: 0, right: 800, bottom: 600 }) },
+  dispatchEvent(ev) {
+    drops.push({
+      type: ev.type,
+      files: ev.dataTransfer.files.map(f => ({ name: f.name, type: f.type, size: f.size })),
+      clientX: ev.clientX, clientY: ev.clientY,
+    });
+    return true;
+  },
+};
+function File(partes, name, opts) {
+  this.name = name; this.type = (opts && opts.type) || '';
+  this.size = partes.reduce((n, p) => n + p.length, 0);
+}
+function DataTransfer() {
+  const files = [];
+  this.files = files;
+  this.items = { add: f => files.push(f) };
+}
+function DragEvent(type, init) { Object.assign(this, init); this.type = type; }
+
 const window = {
   localStorage: wrap(makeStorage(localInicial)),
   sessionStorage: wrap(makeStorage({})),
@@ -61,16 +99,22 @@ const window = {
     save_state: (k, v) => { saves.push([k, v]); return Promise.resolve(); },
     delete_state: () => Promise.resolve(),
     save_file: () => Promise.resolve(), open_file: () => Promise.resolve(null),
+    imagenes_pendientes: () => {
+      llamadasPendientes++;
+      const lista = colaImagenes; colaImagenes = [];
+      return Promise.resolve(lista);
+    },
   } },
 };
 const ctx = {
   window, Storage, console,
-  document: { getElementById: () => null, createElement: () => ({}) },
+  document: { getElementById: id => (id === 'main-canvas' ? mainCanvas : null), createElement: () => ({}) },
   URL: { createObjectURL: () => 'blob:x', revokeObjectURL: () => {} },
-  Blob: function () {}, FileReader: function () {}, DataTransfer: function () {},
+  Blob: function () {}, FileReader: function () {}, DataTransfer, DragEvent,
+  atob: b => Buffer.from(b, 'base64').toString('binary'),
   HTMLAnchorElement: { prototype: { click() {} } },
   HTMLInputElement: { prototype: { click() {} } },
-  Promise, setTimeout, Event: function () {}, File: function () {},
+  Promise, setTimeout, Event: function () {}, File,
   btoa: s => s, unescape: s => s, encodeURIComponent: s => s, decodeURIComponent: s => s,
 };
 ctx.globalThis = ctx;
@@ -86,6 +130,10 @@ if (escenario !== 'lleno') {
 // Una clave que Python no tiene: siempre debe llegar a disco.
 window.localStorage.setItem('sketchwire.library', '[]');
 
+// Python avisa (imagen soltada con la app abierta) ANTES de que el puente
+// esté listo: no debe recoger nada todavía.
+const avisoTemprano = window.__pyzarraImagenes();
+
 (listeners.pywebviewready || []).forEach(fn => fn());
 setTimeout(() => {
   // Si el puente pidió recargar, app.js (aún vivo, con su escena vacía en
@@ -100,5 +148,9 @@ setTimeout(() => {
     saves,
     local: window.localStorage._dump(),
     reloads: window.location.reloads,
+    drops,
+    llamadasPendientes,
+    quedanEnCola: colaImagenes.length,
+    avisoTempranoEsPromesa: typeof (avisoTemprano && avisoTemprano.then) === 'function',
   }));
 }, 20);

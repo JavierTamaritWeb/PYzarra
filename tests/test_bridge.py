@@ -67,3 +67,41 @@ def test_primer_arranque_sin_nada_en_python_vuelca_lo_pendiente():
     guardadas = dict(r["saves"])
     assert set(guardadas) == {"sketchwire.tabs", "sketchwire.autosave", "sketchwire.library"}
     assert r["reloads"] == 0
+
+
+# ---------- Imágenes soltadas sobre el icono del Dock ----------
+
+def test_imagenes_de_la_cola_se_sueltan_en_el_lienzo_al_estar_listo():
+    r = correr("imagenes")
+    assert r["llamadasPendientes"] == 1, "el puente recoge la cola UNA vez, al estar listo"
+    assert r["quedanEnCola"] == 0
+    assert len(r["drops"]) == 1, "todas las imágenes van en UN drop (app.js las pone en cascada)"
+    drop = r["drops"][0]
+    assert drop["type"] == "drop"
+    assert drop["files"] == [
+        {"name": "foto.png", "type": "image/png", "size": 8},
+        {"name": "otra.jpg", "type": "image/jpeg", "size": 3},
+    ], "los bytes de Python llegan como File con su tipo (app.js filtra por MIME)"
+    # Centro de la parte visible: lienzo (100..1100 × 50..750) recortado por
+    # su contenedor con scroll (0..800 × 0..600).
+    assert (drop["clientX"], drop["clientY"]) == (450, 325)
+
+
+def test_un_aviso_de_python_antes_de_estar_listo_no_recoge_nada():
+    """Python avisa al soltar con la app abierta; si la web aún no decidió si
+    recarga, recoger sería insertar la imagen en una página que va a morir."""
+    r = correr("imagenes")
+    assert r["avisoTempranoEsPromesa"]
+    assert r["llamadasPendientes"] == 1, "solo la recogida de cuando está listo"
+
+
+def test_si_el_puente_recarga_las_imagenes_esperan_en_python():
+    r = correr("imagenes-con-recarga")
+    assert r["reloads"] == 1
+    assert r["drops"] == [], "nada se inserta en la página que se va a recargar"
+    assert r["llamadasPendientes"] == 0
+    assert r["quedanEnCola"] == 2, "la cola sigue intacta para la página recargada"
+
+
+def test_sin_imagenes_no_se_simula_ningun_drop():
+    assert correr("primer-arranque")["drops"] == []

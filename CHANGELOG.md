@@ -7,6 +7,30 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.17.0] — 2026-11-07
+
+### Añadido
+
+- **Soltar imágenes sobre el icono del Dock** — arrastrar uno o varios PNG/JPG
+  sobre el icono de Pyzarra (abierta o cerrada) los inserta en la pizarra
+  activa, centrados en la parte visible del lienzo y en cascada, seleccionados
+  con Mover y deshacibles: exactamente como soltarlos sobre el lienzo. El
+  `.app` declara los tipos en `CFBundleDocumentTypes` (rango `Alternate`: no
+  se hace la app por defecto para abrir fotos); el delegado de Cocoa recibe
+  `application:openFiles:` y encola las rutas (`abrir_archivos.py`); la web
+  las recoge con `api.imagenes_pendientes` y `bridge.js` simula el `drop` de
+  archivos de `app.js` sobre `#main-canvas`, sin tocar los JS originales. La
+  recogida espera a que el puente decida si recarga para restaurar el dibujo,
+  así la imagen no se pierde con la recarga. También vale
+  `uv run pyzarra foto.png`.
+
+### Cambiado
+
+- `argv_emulation=False` en `Pyzarra.spec`: estaba puesto «para arrastrar
+  archivos sobre el icono» pero nadie leía `sys.argv`; ahora una sola vía.
+- La versión del spec (se había quedado en 4.10.0) va con la de
+  `pyproject.toml`, pineado por test.
+
 ## [4.16.1] — 2026-09-17
 
 ### Corregido

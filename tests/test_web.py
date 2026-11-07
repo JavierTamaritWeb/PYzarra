@@ -122,7 +122,8 @@ class TestPuenteEnJavaScript:
 
     @pytest.mark.parametrize(
         "metodo",
-        ["save_file", "open_file", "save_state", "load_state", "delete_state"],
+        ["save_file", "open_file", "save_state", "load_state", "delete_state",
+         "imagenes_pendientes"],
     )
     def test_bridge_llama_metodos_que_existen_en_python(self, web_dir, metodo):
         """Cada metodo que usa bridge.js debe existir en api.py."""

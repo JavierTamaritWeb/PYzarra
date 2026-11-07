@@ -7,10 +7,12 @@
  * En un navegador normal window.pywebview nunca aparece y la web
  * funciona exactamente igual que antes.
  *
- * Tres intercepciones, sin editar ningun archivo existente:
+ * Cuatro intercepciones, sin editar ningun archivo existente:
  *   1. <a download>.click()        -> dialogo nativo de Guardar (api.save_file)
  *   2. <input type=file>.click()   -> dialogo nativo de Abrir  (api.open_file)
  *   3. localStorage sketchwire.*   -> espejo en disco          (api.save_state)
+ *   4. imagenes soltadas en el Dock -> `drop` simulado sobre el lienzo
+ *                                     (api.imagenes_pendientes)
  */
 (function () {
   "use strict";
@@ -172,6 +174,75 @@
     return origRemoveItem.call(this, k);
   };
 
+  /* ---------- 4. Imagenes soltadas sobre el icono del Dock ---------- */
+
+  // Python encola las imagenes (abrir_archivos.py) y la web las recoge. Hasta
+  // que el puente decide si recarga, recoger seria insertarlas en una pagina
+  // que va a morir: la imagen se perderia con la recarga.
+  var listoParaImagenes = false;
+
+  // Centro de la parte VISIBLE del lienzo, en coordenadas de ventana: es
+  // donde caeria la imagen si se soltara a mano en mitad de la pantalla.
+  function centroVisible(canvas) {
+    var r = canvas.getBoundingClientRect();
+    var caja = canvas.parentElement ? canvas.parentElement.getBoundingClientRect() : r;
+    var izq = Math.max(r.left, caja.left), der = Math.min(r.right, caja.right);
+    var arr = Math.max(r.top, caja.top), aba = Math.min(r.bottom, caja.bottom);
+    if (der <= izq || aba <= arr) { izq = r.left; der = r.right; arr = r.top; aba = r.bottom; }
+    return { x: (izq + der) / 2, y: (arr + aba) / 2 };
+  }
+
+  function aFile(img) {
+    var bin = atob(img.data_b64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new File([bytes], img.name, { type: img.mime });
+  }
+
+  // Se reutiliza el drop de archivos de app.js sobre #main-canvas (filtra
+  // PNG/JPEG, inserta, escala, cascada si son varias, deja seleccionada y
+  // apila Deshacer): un `drop` simulado con los archivos de Python.
+  function soltarEnLienzo(lista) {
+    var canvas = document.getElementById("main-canvas");
+    if (!canvas) return 0;
+    var dt = new DataTransfer();
+    lista.forEach(function (img) { dt.items.add(aFile(img)); });
+    var c = centroVisible(canvas);
+    var init = { bubbles: true, cancelable: true, dataTransfer: dt, clientX: c.x, clientY: c.y };
+    var ev = null;
+    try { ev = new DragEvent("drop", init); } catch (e) { ev = null; }
+    if (!ev || !ev.dataTransfer || !ev.dataTransfer.files ||
+        ev.dataTransfer.files.length !== lista.length) {
+      // Motor que no admite dataTransfer en un DragEvent sintetico: el
+      // handler solo lee dataTransfer.files, clientX/Y y preventDefault.
+      ev = new Event("drop", { bubbles: true, cancelable: true });
+      Object.defineProperty(ev, "dataTransfer", { value: dt });
+      Object.defineProperty(ev, "clientX", { value: c.x });
+      Object.defineProperty(ev, "clientY", { value: c.y });
+    }
+    canvas.dispatchEvent(ev);
+    return lista.length;
+  }
+
+  // Python la llama al soltar con la app abierta; el puente, al estar listo.
+  window.__pyzarraImagenes = function () {
+    if (!listoParaImagenes || !api() || !api().imagenes_pendientes) {
+      return Promise.resolve(0);
+    }
+    return api().imagenes_pendientes().then(function (lista) {
+      return lista && lista.length ? soltarEnLienzo(lista) : 0;
+    }).catch(function (e) {
+      console.error("[bridge] fallo al abrir imagenes:", e);
+      avisar("⚠ No se pudo abrir la imagen");
+      return 0;
+    });
+  };
+
+  function abrirImagenesPendientes() {
+    listoParaImagenes = true;
+    window.__pyzarraImagenes();
+  }
+
   window.addEventListener("pywebviewready", function () {
     ready = true;
     api().load_state().then(function (estado) {
@@ -227,9 +298,12 @@
         // claves restauradas es su estado de arranque vacío: se ignora.
         protegidasEnRecarga = restauradas;
         window.location.reload();
+        return; // las imagenes esperan en Python a la pagina recargada
       }
+      abrirImagenesPendientes();
     }).catch(function (e) {
       console.error("[bridge] fallo al cargar estado:", e);
+      abrirImagenesPendientes();
     });
   });
 })();

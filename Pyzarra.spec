@@ -13,7 +13,7 @@ from pathlib import Path
 
 APP_NAME = "Pyzarra"
 BUNDLE_ID = "es.javiertamarit.pyzarra"
-VERSION = "4.10.0"
+VERSION = "4.17.0"
 
 ROOT = Path(SPECPATH)
 WEB_DIR = ROOT / "src" / "pyzarra" / "web"
@@ -73,7 +73,11 @@ exe = EXE(
     upx=False,              # UPX rompe firmas en macOS. Dejar False.
     console=False,          # sin ventana de terminal
     disable_windowed_traceback=False,
-    argv_emulation=True,    # permite arrastrar archivos sobre el icono
+    # False: los archivos soltados sobre el icono los recibe el delegado de
+    # Cocoa (application:openFiles:, ver abrir_archivos.py), tanto al arrancar
+    # como con la app abierta. Con True el bootloader se tragaba el evento del
+    # arranque y lo dejaba en sys.argv: dos vias para lo mismo.
+    argv_emulation=False,
     target_arch=None,       # None = arquitectura de tu Mac.
                             # "universal2" = Intel + Apple Silicon
     codesign_identity=None,
@@ -105,5 +109,16 @@ app = BUNDLE(
         "LSMinimumSystemVersion": "11.0",
         "LSApplicationCategoryType": "public.app-category.productivity",
         "NSHumanReadableCopyright": "© 2026 Javier Tamarit",
+        # Soltar imagenes sobre el icono del Dock. Deben coincidir con
+        # abrir_archivos.IMAGENES (la web solo acepta PNG y JPEG). "Alternate":
+        # acepta el arrastre sin hacerse la app por defecto para abrir fotos.
+        "CFBundleDocumentTypes": [
+            {
+                "CFBundleTypeName": "Imagen",
+                "CFBundleTypeRole": "Viewer",
+                "LSHandlerRank": "Alternate",
+                "LSItemContentTypes": ["public.png", "public.jpeg"],
+            },
+        ],
     },
 )

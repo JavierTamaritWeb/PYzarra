@@ -10,6 +10,7 @@ from pathlib import Path
 
 import webview
 
+from pyzarra import abrir_archivos
 from pyzarra.api import Api
 from pyzarra.menu import build_menu
 
@@ -62,7 +63,13 @@ def main() -> None:
     # antes de `pywebviewready`) veía siempre un lienzo vacío y acababa
     # pisando el disco con él. Con el almacén persistente la app se comporta
     # como en un navegador y el espejo en disco queda de red de seguridad.
+    # Imagenes pasadas como argumentos (`uv run pyzarra foto.png`): se encolan
+    # y la web las recoge al estar lista, como las soltadas sobre el Dock.
+    abrir_archivos.encolar(sys.argv[1:])
+
     if sys.platform == "darwin":
+        # Soltar imagenes sobre el icono del Dock (application:openFiles:).
+        abrir_archivos.instalar_receptor_cocoa()
         # En macOS, menu= se pierde (ver _instalar_menu_mac).
         webview.start(func=_instalar_menu_mac, args=(window,), debug=False, private_mode=False)
     else:
