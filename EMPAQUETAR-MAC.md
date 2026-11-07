@@ -97,6 +97,13 @@ Si falla, déjalo en `None` (compila solo para tu Mac).
 | "La app está dañada" | Falta firma | Ejecuta el `codesign` |
 | Se cierra al instante | Error de Python | Ver comando de abajo |
 | No encuentra `index.html` | Ruta absoluta en HTML | Usa rutas relativas |
+| El icono del Dock no se ilumina al arrastrar una imagen | macOS no ha leído los tipos de documento del `.app` nuevo | `lsregister -f dist/Pyzarra.app` (ver abajo) y volver a añadir la app al Dock |
+| En desarrollo funciona y en el `.app` no | JS viejo de la caché de WebKit | Ya se vacía en cada arranque (v4.17.1); con la app abierta, `curl -sI http://127.0.0.1:42001/js/bridge.js` |
+
+**Registrar el `.app` en macOS** (tras cambiar `CFBundleDocumentTypes` en el `.spec`):
+```bash
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f dist/Pyzarra.app
+```
 
 **Ver el error real** (abre la app desde terminal y muestra los mensajes):
 ```bash

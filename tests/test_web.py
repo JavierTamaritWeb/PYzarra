@@ -280,3 +280,29 @@ class TestVentana:
         assert len(llamadas) >= 2, f"main.py llama a webview.start en cada rama: {llamadas}"
         for llamada in llamadas:
             assert "private_mode=False" in llamada, llamada
+
+
+class TestCacheDeLaWeb:
+    """pywebview sirve la web por http://127.0.0.1:42001 y sus cabeceras
+    anti-caché se pierden; con el almacén persistente WebKit ejecutaba el
+    bridge.js de una versión anterior (v4.17.0: soltar en el Dock no hacía
+    nada en el .app). Cada arranque vacía la caché HTTP, nunca localStorage."""
+
+    def _main(self) -> str:
+        return (Path(__file__).resolve().parents[1] / "src" / "pyzarra" / "main.py").read_text(encoding="utf-8")
+
+    def test_vacia_la_cache_antes_de_arrancar(self):
+        src = self._main()
+        rama_mac = src[src.index('if sys.platform == "darwin":'):]
+        assert rama_mac.index("_vaciar_cache_web_mac()") < rama_mac.index("webview.start(")
+
+    def test_solo_borra_cache_no_los_datos_guardados(self):
+        funcion = self._main().split("def _vaciar_cache_web_mac", 1)[1].split("\ndef ", 1)[0]
+        assert "WKWebsiteDataTypeDiskCache" in funcion
+        assert "LocalStorage" not in funcion and "allWebsiteDataTypes" not in funcion
+
+    def test_en_mac_los_argumentos_no_se_encolan_dos_veces(self):
+        """NSApplication ya entrega los argumentos como archivos a abrir."""
+        src = self._main()
+        rama_mac = src.split('if sys.platform == "darwin":', 1)[1].split("    else:", 1)[0]
+        assert "encolar(" not in rama_mac

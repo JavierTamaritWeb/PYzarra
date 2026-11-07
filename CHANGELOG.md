@@ -7,6 +7,23 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.17.1] — 2026-11-07
+
+### Corregido
+
+- **Soltar imágenes en el Dock no hacía nada en el `.app`** (sí en desarrollo):
+  la app ejecutaba un `bridge.js` de una versión anterior guardado en la caché
+  de WebKit. pywebview sirve la web desde `http://127.0.0.1:42001` (puerto fijo
+  con `private_mode=False`) y sus cabeceras anti-caché se pierden porque
+  `bottle.static_file` devuelve una respuesta nueva; con el almacén persistente,
+  WebKit reutilizaba los JS viejos por su `Last-Modified`. Afectaba a CUALQUIER
+  actualización de la web, no solo a esta. Ahora cada arranque vacía la caché
+  HTTP de WebKit (disco, memoria, fetch) antes de cargar la página; los datos
+  guardados (`localStorage`) no se tocan.
+- En macOS una imagen pasada por argumento se insertaba dos veces:
+  NSApplication ya entrega los argumentos como archivos a abrir, así que ya no
+  se encolan aparte.
+
 ## [4.17.0] — 2026-11-07
 
 ### Añadido

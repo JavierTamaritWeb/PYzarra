@@ -39,6 +39,43 @@ def _instalar_menu_mac(window) -> None:
     AppHelper.callAfter(instalar_menu_cocoa)
 
 
+def _vaciar_cache_web_mac(espera: float = 3.0) -> None:
+    """
+    Vacia la cache HTTP de WebKit (disco, memoria, fetch) antes de cargar la
+    web. NO toca localStorage ni nada mas del almacen: solo la cache.
+
+    Por que: pywebview sirve la web desde un servidor local fijo
+    (http://127.0.0.1:42001, puerto fijo con private_mode=False) y sus
+    cabeceras anti-cache se pierden (bottle.static_file devuelve una
+    respuesta nueva). Con el almacen persistente, WebKit reutilizaba los JS
+    de una version anterior por su Last-Modified: el .app nuevo corria el
+    bridge.js viejo (v4.17.0, soltar en el Dock no hacia nada). Cada arranque
+    debe ejecutar exactamente la web que lleva dentro.
+
+    El borrado es asincrono: se gira el run loop hasta que termina (o
+    `espera` segundos) para que acabe ANTES de que la ventana pida nada.
+    """
+    try:
+        import Foundation
+        import WebKit
+
+        tipos = Foundation.NSSet.setWithArray_([
+            WebKit.WKWebsiteDataTypeDiskCache,
+            WebKit.WKWebsiteDataTypeMemoryCache,
+            WebKit.WKWebsiteDataTypeFetchCache,
+        ])
+        hecho = []
+        WebKit.WKWebsiteDataStore.defaultDataStore().removeDataOfTypes_modifiedSince_completionHandler_(
+            tipos, Foundation.NSDate.distantPast(), lambda: hecho.append(True)
+        )
+        limite = Foundation.NSDate.dateWithTimeIntervalSinceNow_(espera)
+        bucle = Foundation.NSRunLoop.currentRunLoop()
+        while not hecho and Foundation.NSDate.date().compare_(limite) < 0:
+            bucle.runUntilDate_(Foundation.NSDate.dateWithTimeIntervalSinceNow_(0.05))
+    except Exception:  # noqa: BLE001 — sin cache limpia la app sigue arrancando
+        pass
+
+
 def main() -> None:
     api = Api()
 
@@ -63,16 +100,18 @@ def main() -> None:
     # antes de `pywebviewready`) veía siempre un lienzo vacío y acababa
     # pisando el disco con él. Con el almacén persistente la app se comporta
     # como en un navegador y el espejo en disco queda de red de seguridad.
-    # Imagenes pasadas como argumentos (`uv run pyzarra foto.png`): se encolan
-    # y la web las recoge al estar lista, como las soltadas sobre el Dock.
-    abrir_archivos.encolar(sys.argv[1:])
-
     if sys.platform == "darwin":
+        _vaciar_cache_web_mac()
         # Soltar imagenes sobre el icono del Dock (application:openFiles:).
+        # Tambien cubre `uv run pyzarra foto.png`: NSApplication entrega los
+        # argumentos como archivos a abrir, asi que NO se encolan aparte (se
+        # duplicaban).
         abrir_archivos.instalar_receptor_cocoa()
         # En macOS, menu= se pierde (ver _instalar_menu_mac).
         webview.start(func=_instalar_menu_mac, args=(window,), debug=False, private_mode=False)
     else:
+        # Imagenes pasadas como argumentos: la web las recoge al estar lista.
+        abrir_archivos.encolar(sys.argv[1:])
         webview.start(menu=build_menu(), debug=False, private_mode=False)
 
 

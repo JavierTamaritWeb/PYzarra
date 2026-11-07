@@ -4,6 +4,26 @@ Errores propios de la app de escritorio (no de la web, que tiene su propio
 [BUGS.md en pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/BUGS.md)).
 Cada entrada: síntoma, causa, arreglo y la **guardia** que falla si vuelve.
 
+### v4.17.1 — Soltar imágenes en el Dock no hacía nada en el `.app`
+
+- **Síntoma:** en la 4.17.0, arrastrar un PNG al icono de Pyzarra no
+  insertaba nada. En desarrollo (`uv run pyzarra`) sí funcionaba.
+- **Causa:** el `.app` ejecutaba un `bridge.js` **antiguo** de la caché de
+  WebKit, sin `__pyzarraImagenes`. pywebview sirve la web desde
+  `http://127.0.0.1:42001` (puerto fijo con `private_mode=False`); intenta
+  mandar cabeceras anti-caché, pero `bottle.static_file` devuelve una
+  respuesta nueva y se pierden, así que con el almacén persistente WebKit
+  daba por buena la copia vieja por su `Last-Modified`. Afectaba a cualquier
+  actualización de la web. macOS sí avisaba a la app y la imagen se encolaba:
+  la web nunca la recogía.
+- **Arreglo:** `main.py` vacía en cada arranque SOLO la caché HTTP de WebKit
+  (disco, memoria, fetch) antes de cargar la página; `localStorage` no se
+  toca. De paso: en macOS los argumentos ya no se encolan aparte (NSApplication
+  los entrega como archivos a abrir y la imagen entraba dos veces).
+- **Guardia:** `tests/test_web.py::TestCacheDeLaWeb` y la prueba real con
+  `open -a dist/Pyzarra.app foto.png` (app abierta y cerrada). Diagnóstico
+  rápido con la app abierta: `curl -sI http://127.0.0.1:42001/js/bridge.js`.
+
 ### v4.15.2 — Arrancar la app seguía dejando el disco en blanco por otra vía
 
 - **Síntoma:** al arrancar la 4.15.1 con un dibujo en disco, seis segundos
