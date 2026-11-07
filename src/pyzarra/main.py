@@ -24,6 +24,31 @@ else:
 INDEX = WEB_DIR / "index.html"
 
 
+# Textos propios de pywebview (titulo del dialogo de Guardar, confirmaciones,
+# menu de la app). Los botones y etiquetas del dialogo los pone macOS segun la
+# localizacion del bundle (CFBundleDevelopmentRegion + es.lproj en el .spec).
+LOCALIZACION = {
+    "global.quitConfirmation": "¿Seguro que quieres salir?",
+    "global.ok": "Aceptar",
+    "global.quit": "Salir",
+    "global.cancel": "Cancelar",
+    "global.saveFile": "Guardar archivo",
+    "cocoa.menu.about": "Acerca de",
+    "cocoa.menu.services": "Servicios",
+    "cocoa.menu.view": "Ver",
+    "cocoa.menu.hide": "Ocultar",
+    "cocoa.menu.hideOthers": "Ocultar otros",
+    "cocoa.menu.showAll": "Mostrar todo",
+    "cocoa.menu.quit": "Salir de",
+    "cocoa.menu.fullscreen": "Pantalla completa",
+    "windows.fileFilter.allFiles": "Todos los archivos",
+    "windows.fileFilter.otherFiles": "Otros tipos de archivo",
+    "linux.openFile": "Abrir archivo",
+    "linux.openFiles": "Abrir archivos",
+    "linux.openFolder": "Abrir carpeta",
+}
+
+
 def _instalar_menu_mac(window) -> None:
     """
     Workaround para macOS: el backend Cocoa de pywebview (5.3.2) borra el
@@ -108,11 +133,13 @@ def main() -> None:
         # duplicaban).
         abrir_archivos.instalar_receptor_cocoa()
         # En macOS, menu= se pierde (ver _instalar_menu_mac).
-        webview.start(func=_instalar_menu_mac, args=(window,), debug=False, private_mode=False)
+        webview.start(func=_instalar_menu_mac, args=(window,), debug=False, private_mode=False,
+                      localization=LOCALIZACION)
     else:
         # Imagenes pasadas como argumentos: la web las recoge al estar lista.
         abrir_archivos.encolar(sys.argv[1:])
-        webview.start(menu=build_menu(), debug=False, private_mode=False)
+        webview.start(menu=build_menu(), debug=False, private_mode=False,
+                      localization=LOCALIZACION)
 
 
 if __name__ == "__main__":

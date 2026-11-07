@@ -19,7 +19,7 @@ uv run ruff check src tests              # lint
 App de escritorio: **pywebview** abre una ventana nativa que carga `src/pyzarra/web/index.html` (pywebview la sirve desde un servidor local, `http://127.0.0.1:42001`, puerto fijo con `private_mode=False`). En macOS el motor es **WKWebView**. Cuatro piezas Python:
 
 - `main.py` — crea la ventana. Empaquetada, la web vive en `sys._MEIPASS/pyzarra/web`; esa ruta debe coincidir con `datas=` de `Pyzarra.spec`. En macOS el menú se instala con un workaround (ver abajo).
-- `api.py` — el puente JS→Python (`window.pywebview.api.*`). Solo métodos públicos se exponen; argumentos y retornos JSON-serializables. Persistencia en disco por clave (`~/Library/Application Support/Pyzarra/<clave>.json`), con escritura atómica (`.tmp` + rename) y carga tolerante a archivos corruptos.
+- `api.py` — el puente JS→Python (`window.pywebview.api.*`). Solo métodos públicos se exponen; argumentos y retornos JSON-serializables. Persistencia en disco por clave (`~/Library/Application Support/Pyzarra/<clave>.json`), con escritura atómica (`.tmp` + rename) y carga tolerante a archivos corruptos. `save_file` cambia el nombre fijo del build («wireframe») por el primer `exportadoN` libre, contado en la carpeta donde abre el diálogo (la última usada, en `ultima-carpeta-exportar.txt`, o el Escritorio).
 - `abrir_archivos.py` — imágenes soltadas sobre el icono del Dock. `Pyzarra.spec` declara PNG/JPEG en `CFBundleDocumentTypes` (deben coincidir con `IMAGENES`, hay test); se añade `application:openFiles:` al `AppDelegate` de pywebview, que ENCOLA las rutas; la web las recoge con `api.imagenes_pendientes` cuando el puente ya decidió si recarga (si no, la imagen moriría con la recarga). El aviso a la web (`evaluate_js`) va SIEMPRE en un hilo aparte: en Cocoa espera bloqueado al hilo principal, que es donde vive el delegado. `argv_emulation=False`.
 - `menu.py` — barra de menús nativa que dispara botones de la web por su id (`document.getElementById(...).click()`). La lógica sigue en JS. En macOS `set_app_menu` de pywebview no funciona (pierde el menú y los targets): se reinstala con AppKit tras `window.events.shown`, guardando referencias fuertes y con auto-validación desactivada. Los ids de `MENU_LAYOUT` están pineados por tests contra `index.html`.
 
@@ -65,5 +65,6 @@ En desarrollo `uv run pyzarra` usa `src/` directamente y siempre está al día.
 ## Convenciones
 
 - Todo en castellano: comentarios, tests, mensajes de commit (ver `git log`).
+- Interfaz nativa también en castellano: los textos de pywebview van en `LOCALIZACION` (`main.py`, pasado a `webview.start`) y los de AppKit (botones del diálogo de Guardar…) salen del idioma del bundle: `CFBundleDevelopmentRegion: "es"` + `assets/es.lproj` en el spec. Pineado por `TestEspanol`.
 - Versiones fijadas con `==` en `pyproject.toml` (hay test que lo exige); `uv.lock`, `.python-version` y la versión mínima de uv van a git.
 - Rutas de la web siempre **relativas** (`css/...`, nunca `/css/...`): una absoluta rompe el `.app` (hay test).

@@ -7,6 +7,20 @@ de dibujo se detallan en el
 [CHANGELOG de pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/CHANGELOG.md).
 El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/).
 
+## [4.17.2] — 2026-11-07
+
+### Corregido
+
+- **El diálogo de Guardar sale en español** («Guardar archivo», «Guardar
+  como», «Cancelar»…): pywebview recibe sus textos traducidos y el `.app`
+  declara el español como idioma (`CFBundleDevelopmentRegion` y `es.lproj`),
+  que es lo que usa macOS para los diálogos del sistema.
+- **Exportar ya no choca con «el archivo ya existe»:** en lugar de
+  «wireframe», el diálogo propone `exportado1`, `exportado2`… el primero que
+  no exista en la carpeta, que es la última donde se exportó (o el
+  Escritorio). Los nombres propios (biblioteca, pestaña con título) se
+  respetan.
+
 ## [4.17.1] — 2026-11-07
 
 ### Corregido

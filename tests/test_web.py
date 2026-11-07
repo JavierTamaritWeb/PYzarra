@@ -306,3 +306,26 @@ class TestCacheDeLaWeb:
         src = self._main()
         rama_mac = src.split('if sys.platform == "darwin":', 1)[1].split("    else:", 1)[0]
         assert "encolar(" not in rama_mac
+
+
+class TestEspanol:
+    """El diálogo nativo de Guardar salía en inglés («Save file», «Save As»,
+    «Cancel»): el título es de pywebview y el resto lo pone macOS según la
+    localización del bundle."""
+
+    RAIZ = Path(__file__).resolve().parents[1]
+
+    def test_pywebview_recibe_los_textos_en_espanol(self):
+        from pyzarra.main import LOCALIZACION
+        from webview.localization import original_localization
+
+        assert LOCALIZACION["global.saveFile"] == "Guardar archivo"
+        assert set(original_localization) <= set(LOCALIZACION), "ninguna clave sin traducir"
+        src = (self.RAIZ / "src" / "pyzarra" / "main.py").read_text(encoding="utf-8")
+        assert src.count("localization=LOCALIZACION") == 2, "en las dos ramas de webview.start"
+
+    def test_el_bundle_declara_el_espanol(self):
+        spec = (self.RAIZ / "Pyzarra.spec").read_text(encoding="utf-8")
+        assert '"CFBundleDevelopmentRegion": "es"' in spec
+        assert '"es.lproj"' in spec
+        assert (self.RAIZ / "assets" / "es.lproj" / "InfoPlist.strings").is_file()

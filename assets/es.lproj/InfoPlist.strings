@@ -1,0 +1,4 @@
+/* Localización española del bundle: con ella macOS muestra en español los
+   diálogos del sistema (Guardar, Abrir) dentro de la app. */
+"CFBundleDisplayName" = "Pyzarra";
+"CFBundleName" = "Pyzarra";

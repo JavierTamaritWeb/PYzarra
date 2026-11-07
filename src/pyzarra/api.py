@@ -20,6 +20,25 @@ APP_NAME = "Pyzarra"
 _KEY_RE = re.compile(r"^[\w.-]+$")
 
 
+# Nombre que pone exporter.js (pizarra) a toda exportacion sin nombre propio
+# (PNG, JPG, SVG, HTML y el JSON de una pestana sin titulo). En la app se
+# cambia por "exportado1", "exportado2"... el primero libre en la carpeta.
+_NOMBRE_DEL_BUILD = "wireframe"
+_NOMBRE_EXPORTADO = "exportado"
+
+# Ultima carpeta donde se exporto (texto plano, NO .json: no es una clave de
+# localStorage y load_state no debe devolverla).
+_ARCHIVO_CARPETA = "ultima-carpeta-exportar.txt"
+
+
+def nombre_libre(carpeta: Path, base: str, extension: str) -> str:
+    """Primer `<base><n><extension>` (n = 1, 2, ...) que no existe en `carpeta`."""
+    n = 1
+    while (Path(carpeta) / f"{base}{n}{extension}").exists():
+        n += 1
+    return f"{base}{n}{extension}"
+
+
 def _default_data_dir() -> Path:
     home = Path.home()
     mac_dir = home / "Library" / "Application Support"
@@ -37,14 +56,20 @@ class Api:
         """Pide destino con un dialogo nativo y escribe los bytes (base64)."""
         import webview
 
+        carpeta = self._carpeta_exportar()
+        sugerido = Path(suggested_name)
+        if sugerido.stem == _NOMBRE_DEL_BUILD:
+            suggested_name = nombre_libre(carpeta, _NOMBRE_EXPORTADO, sugerido.suffix)
+
         ventana = webview.windows[0]
         destino = ventana.create_file_dialog(
-            webview.SAVE_DIALOG, save_filename=suggested_name
+            webview.SAVE_DIALOG, directory=str(carpeta), save_filename=suggested_name
         )
         if not destino:
             return None
         ruta = Path(destino if isinstance(destino, str) else destino[0])
         ruta.write_bytes(base64.b64decode(content_b64))
+        self._recordar_carpeta(ruta.parent)
         return str(ruta)
 
     # ---------- Importar: dialogo nativo de Abrir ----------
@@ -114,5 +139,27 @@ class Api:
         return abrir_archivos.vaciar()
 
     # ---------- metodos privados: NO visibles desde JS ----------
+    def _carpeta_exportar(self) -> Path:
+        """Donde se abre el dialogo de Guardar: la ultima usada, o el Escritorio.
+
+        Se fija explicitamente (en vez de dejar que macOS recuerde la suya)
+        porque el numero de "exportadoN" se calcula mirando ESA carpeta.
+        """
+        try:
+            guardada = Path((self._dir / _ARCHIVO_CARPETA).read_text(encoding="utf-8").strip())
+            if guardada.is_dir():
+                return guardada
+        except (OSError, UnicodeDecodeError, ValueError):
+            pass
+        escritorio = Path.home() / "Desktop"
+        return escritorio if escritorio.is_dir() else Path.home()
+
+    def _recordar_carpeta(self, carpeta: Path) -> None:
+        try:
+            self._dir.mkdir(parents=True, exist_ok=True)
+            (self._dir / _ARCHIVO_CARPETA).write_text(str(carpeta), encoding="utf-8")
+        except OSError:
+            pass  # recordar la carpeta es una comodidad, no puede romper el guardado
+
     def _state_path(self, key: str) -> Path:
         return self._dir / f"{key}.json"

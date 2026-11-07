@@ -7,6 +7,7 @@ Los dialogos nativos se simulan con monkeypatch.
 
 import base64
 import json
+from pathlib import Path
 
 import pytest
 
@@ -119,6 +120,60 @@ class TestSaveFile:
         ventana.respuesta = (str(destino),)
         api.save_file("w.json", base64.b64encode(b"{}").decode())
         assert destino.read_bytes() == b"{}"
+
+
+class TestNombreExportado:
+    """«wireframe» (el nombre del build) pasa a exportado1, exportado2...: el
+    primero libre en la carpeta donde se abre el diálogo."""
+
+    def test_nombre_libre_empieza_en_1(self, tmp_path):
+        from pyzarra.api import nombre_libre
+
+        assert nombre_libre(tmp_path, "exportado", ".png") == "exportado1.png"
+
+    def test_nombre_libre_salta_los_que_existen(self, tmp_path):
+        from pyzarra.api import nombre_libre
+
+        for n in (1, 2, 4):
+            (tmp_path / f"exportado{n}.png").write_bytes(b"")
+        (tmp_path / "exportado3.jpg").write_bytes(b"")  # otra extensión no cuenta
+        assert nombre_libre(tmp_path, "exportado", ".png") == "exportado3.png"
+
+    def test_wireframe_se_sugiere_como_exportado_n(self, api, ventana, tmp_path, monkeypatch):
+        carpeta = tmp_path / "escritorio"
+        carpeta.mkdir()
+        (carpeta / "exportado1.png").write_bytes(b"")
+        monkeypatch.setattr(api, "_carpeta_exportar", lambda: carpeta)
+        ventana.respuesta = None
+        api.save_file("wireframe.png", "")
+        kwargs = ventana.llamadas[0][1]
+        assert kwargs["save_filename"] == "exportado2.png"
+        assert kwargs["directory"] == str(carpeta), "el diálogo se abre donde se contó"
+
+    def test_un_nombre_propio_se_respeta(self, api, ventana):
+        ventana.respuesta = None
+        api.save_file("pyzarra-biblioteca.json", "")
+        assert ventana.llamadas[0][1]["save_filename"] == "pyzarra-biblioteca.json"
+
+    def test_recuerda_la_ultima_carpeta(self, api, ventana, tmp_path):
+        otra = tmp_path / "proyectos"
+        otra.mkdir()
+        ventana.respuesta = str(otra / "exportado1.png")
+        api.save_file("wireframe.png", base64.b64encode(b"x").decode())
+        assert api._carpeta_exportar() == otra
+        # La siguiente exportación se cuenta en esa carpeta: exportado1 ya existe.
+        ventana.respuesta = None
+        api.save_file("wireframe.png", "")
+        assert ventana.llamadas[1][1]["save_filename"] == "exportado2.png"
+
+    def test_la_carpeta_recordada_no_es_una_clave_de_estado(self, api, ventana, tmp_path):
+        ventana.respuesta = str(tmp_path / "a.png")
+        api.save_file("wireframe.png", base64.b64encode(b"x").decode())
+        assert api.load_state() == {}
+
+    def test_si_la_carpeta_recordada_ya_no_existe_vuelve_al_escritorio(self, api, tmp_path):
+        api._recordar_carpeta(tmp_path / "borrada")
+        assert api._carpeta_exportar() in {Path.home() / "Desktop", Path.home()}
 
 
 class TestOpenFile:

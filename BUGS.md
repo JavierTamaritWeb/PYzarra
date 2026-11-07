@@ -4,6 +4,59 @@ Errores propios de la app de escritorio (no de la web, que tiene su propio
 [BUGS.md en pizarra](https://github.com/JavierTamaritWeb/pizarra/blob/main/BUGS.md)).
 Cada entrada: síntoma, causa, arreglo y la **guardia** que falla si vuelve.
 
+### v4.17.2 — El diálogo de Guardar salía en inglés
+
+- **Síntoma:** al exportar, el diálogo nativo decía «Save file», «Save As»,
+  «Where», «Cancel» y «Save», aunque toda la app está en castellano.
+- **Causa:** dos fuentes distintas. El título es un texto de pywebview
+  (`global.saveFile`), que trae sus textos en inglés si no se le pasa
+  `localization`. El resto lo pinta macOS según las localizaciones del
+  bundle: el `.app` no declaraba ninguna (ni `CFBundleDevelopmentRegion` ni
+  carpeta `.lproj`), así que AppKit caía al inglés.
+- **Arreglo:** `main.py` pasa `localization=LOCALIZACION` (todas las claves de
+  pywebview en español) en las dos ramas de `webview.start`; `Pyzarra.spec`
+  declara `CFBundleDevelopmentRegion: "es"`, `CFBundleLocalizations: ["es"]` y
+  mete `assets/es.lproj/` en `Contents/Resources`. Solo afecta al `.app`: con
+  `uv run pyzarra` los botones dependen del bundle de Python.
+- **Guardia:** `tests/test_web.py::TestEspanol` (ninguna clave de pywebview sin
+  traducir, `localization` en las dos llamadas, región y `.lproj` en el spec).
+  Comprobación del bundle: `NSBundle.bundleWithPath_("dist/Pyzarra.app")
+  .preferredLocalizations()` debe dar `es`.
+- **Para que no se repita:** cualquier texto nativo nuevo (diálogos, menús,
+  alertas) sale de pywebview o de AppKit, no de la web: traducirlo en
+  `LOCALIZACION` o comprobar que AppKit lo localiza con `es.lproj`.
+
+### v4.17.2 — Exportar dos veces chocaba con «el archivo ya existe»
+
+- **Síntoma:** el diálogo de Guardar proponía siempre «wireframe»; la segunda
+  exportación en la misma carpeta pedía reemplazar el archivo anterior.
+- **Causa:** `exporter.js` (pizarra) pone un nombre fijo, `wireframe.<ext>`, a
+  toda exportación sin nombre propio, y `api.save_file` lo pasaba tal cual al
+  diálogo, que además se abría donde macOS recordaba, sin que Python supiera
+  qué archivos había allí.
+- **Arreglo:** `api.save_file` cambia «wireframe» por el primer
+  `exportadoN<ext>` libre (`nombre_libre`) en la carpeta donde abre el
+  diálogo, que fija explícitamente: la última usada (guardada en
+  `ultima-carpeta-exportar.txt`, no `.json`, para que `load_state` no la
+  devuelva como clave) o el Escritorio. Los nombres propios se respetan.
+- **Guardia:** `tests/test_api.py::TestNombreExportado` (empieza en 1, salta los
+  existentes de la misma extensión, el diálogo se abre donde se contó, recuerda
+  la carpeta, la carpeta no se cuela en el estado, vuelve al Escritorio si la
+  recordada desaparece).
+- **Para que no se repita:** el nombre se calcula en Python, no en la web
+  (el JS es un build de pizarra); si se fija la carpeta del diálogo, contar
+  SIEMPRE en esa misma carpeta.
+
+### v4.17.1 — Una imagen pasada por argumento se insertaba dos veces
+
+- **Síntoma:** `uv run pyzarra foto.png` metía la foto dos veces en el lienzo.
+- **Causa:** en macOS, NSApplication ya entrega los argumentos de la línea de
+  órdenes como archivos a abrir (`application:openFiles:`), y `main.py`
+  además encolaba `sys.argv`.
+- **Arreglo:** en macOS solo encola el delegado; `sys.argv` se encola solo en
+  Windows y Linux.
+- **Guardia:** `tests/test_web.py::TestCacheDeLaWeb::test_en_mac_los_argumentos_no_se_encolan_dos_veces`.
+
 ### v4.17.1 — Soltar imágenes en el Dock no hacía nada en el `.app`
 
 - **Síntoma:** en la 4.17.0, arrastrar un PNG al icono de Pyzarra no
@@ -23,6 +76,16 @@ Cada entrada: síntoma, causa, arreglo y la **guardia** que falla si vuelve.
 - **Guardia:** `tests/test_web.py::TestCacheDeLaWeb` y la prueba real con
   `open -a dist/Pyzarra.app foto.png` (app abierta y cerrada). Diagnóstico
   rápido con la app abierta: `curl -sI http://127.0.0.1:42001/js/bridge.js`.
+
+### v4.17.0 — (evitado) `evaluate_js` desde el hilo principal cuelga la app
+
+- **Riesgo:** el delegado de Cocoa (`application:openFiles:`) corre en el
+  hilo principal; `window.evaluate_js` de pywebview en Cocoa encola el trabajo
+  en ese mismo hilo y espera bloqueado el resultado: llamarlo desde el
+  delegado deja la app colgada para siempre.
+- **Cómo se evita:** `abrir_archivos.avisar_a_la_web` lanza `evaluate_js` en un
+  hilo aparte. Regla: nunca llamar a `evaluate_js` desde código que corre en el
+  hilo principal (delegados, targets de menú de AppKit, `AppHelper.callAfter`).
 
 ### v4.15.2 — Arrancar la app seguía dejando el disco en blanco por otra vía
 

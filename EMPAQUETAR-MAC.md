@@ -98,6 +98,7 @@ Si falla, déjalo en `None` (compila solo para tu Mac).
 | Se cierra al instante | Error de Python | Ver comando de abajo |
 | No encuentra `index.html` | Ruta absoluta en HTML | Usa rutas relativas |
 | El icono del Dock no se ilumina al arrastrar una imagen | macOS no ha leído los tipos de documento del `.app` nuevo | `lsregister -f dist/Pyzarra.app` (ver abajo) y volver a añadir la app al Dock |
+| Diálogos del sistema en inglés | Falta la localización española en el bundle | Revisa `CFBundleDevelopmentRegion` y `es.lproj` en `datas=` del `.spec` (v4.17.2) |
 | En desarrollo funciona y en el `.app` no | JS viejo de la caché de WebKit | Ya se vacía en cada arranque (v4.17.1); con la app abierta, `curl -sI http://127.0.0.1:42001/js/bridge.js` |
 
 **Registrar el `.app` en macOS** (tras cambiar `CFBundleDocumentTypes` en el `.spec`):

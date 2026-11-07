@@ -13,7 +13,7 @@ from pathlib import Path
 
 APP_NAME = "Pyzarra"
 BUNDLE_ID = "es.javiertamarit.pyzarra"
-VERSION = "4.17.1"
+VERSION = "4.17.2"
 
 ROOT = Path(SPECPATH)
 WEB_DIR = ROOT / "src" / "pyzarra" / "web"
@@ -28,6 +28,9 @@ a = Analysis(
     # Formato: (origen, destino_dentro_del_bundle)
     datas=[
         (str(WEB_DIR), "pyzarra/web"),
+        # Localizacion espanola: sin ninguna .lproj, macOS pinta los dialogos
+        # del sistema (Guardar: "Save As", "Where", "Cancel") en ingles.
+        (str(ROOT / "assets" / "es.lproj"), "es.lproj"),
     ],
 
     # ---- IMPORTS QUE PyInstaller NO DETECTA SOLO ----
@@ -102,6 +105,10 @@ app = BUNDLE(
     info_plist={
         "CFBundleName": APP_NAME,
         "CFBundleDisplayName": APP_NAME,
+        # La app esta en castellano: idioma base y unica localizacion, asi los
+        # dialogos nativos (Guardar, Abrir) salen en espanol.
+        "CFBundleDevelopmentRegion": "es",
+        "CFBundleLocalizations": ["es"],
         "CFBundleShortVersionString": VERSION,
         "CFBundleVersion": VERSION,
         "NSHighResolutionCapable": True,          # pantallas Retina

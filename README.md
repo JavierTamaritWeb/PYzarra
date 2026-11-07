@@ -7,12 +7,12 @@
 **Pizarra de bocetos y wireframes, como app de escritorio.**
 
 Una ventana nativa carga una web de dibujo hecha en HTML + CSS + JavaScript vanilla —sin frameworks— y le añade lo que un navegador no da:
-diálogos nativos de Guardar/Abrir, barra de menús del sistema y persistencia en disco.
+diálogos nativos de Guardar/Abrir en español, barra de menús del sistema y persistencia en disco.
 
-[![Versión](https://img.shields.io/badge/versión-4.17.1-2ec4b6?style=flat-square)](CHANGELOG.md)
+[![Versión](https://img.shields.io/badge/versión-4.17.2-2ec4b6?style=flat-square)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.11-3776ab?style=flat-square&logo=python&logoColor=white)](.python-version)
 [![pywebview](https://img.shields.io/badge/pywebview-5.3.2-1f6feb?style=flat-square)](pyproject.toml)
-[![Tests](https://img.shields.io/badge/tests-94%20passed-3fb950?style=flat-square)](tests/)
+[![Tests](https://img.shields.io/badge/tests-103%20passed-3fb950?style=flat-square)](tests/)
 [![Plataformas](https://img.shields.io/badge/macOS%20·%20Windows%20·%20Linux-lightgrey?style=flat-square)](#requisitos-por-sistema-operativo)
 [![Licencia](https://img.shields.io/badge/licencia-MIT-blue?style=flat-square)](LICENSE)
 
@@ -43,7 +43,7 @@ diálogos nativos de Guardar/Abrir, barra de menús del sistema y persistencia e
 | ✏️ **Dibujo con estética de croquis** | Lápiz sensible a la presión, aerógrafo, tinta, líneas, flechas rectas y curvas, formas 2D y 3D, texto y emojis |
 | 🧩 **Piezas de wireframe** | Botón, input, navbar, tarjeta, imagen y marcos de pantalla, más catálogos de edificios y jardín |
 | 🎛️ **Edición completa** | Selección, alineado, distribución, grupos, orden Z, bloqueo y deshacer/rehacer con 50 pasos |
-| 📤 **Exportación** | PNG, JPG, SVG, HTML y JSON —el JSON se reabre como proyecto— y copia al portapapeles |
+| 📤 **Exportación** | PNG, JPG, SVG, HTML y JSON —el JSON se reabre como proyecto— y copia al portapapeles. Propone `exportado1`, `exportado2`… sin pisar lo que ya hay en la carpeta |
 | 🗂️ **Plantillas y biblioteca** | Estructuras predefinidas (landing, dashboard, formulario) y biblioteca de piezas propias |
 | 🧰 **Barras flotantes** | Barra lateral clásica o barras de herramientas arrastrables por el lienzo (botón **Barras**) |
 | 🖼️ **Soltar imágenes en el Dock** | Arrastra PNG o JPG sobre el icono de la app (abierta o cerrada) y entran en la pizarra activa, como al soltarlos en el lienzo |
@@ -72,7 +72,7 @@ uv run pyzarra   # abre la app
 ## Tests y lint
 
 ```bash
-uv run pytest                                          # los 94 tests
+uv run pytest                                          # los 103 tests
 uv run pytest tests/test_api.py -v                     # un archivo
 uv run pytest -k "corrupto"                            # un test por nombre
 uv run pytest --cov=pyzarra --cov-report=term-missing   # con cobertura
